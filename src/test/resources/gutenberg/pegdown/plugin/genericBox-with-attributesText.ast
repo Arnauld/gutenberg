@@ -1,0 +1,23 @@
+RootNode [0-138]
+  AttributesNode{icon=automobile}
+  GenericBoxNode [18-39]'[SuperNode [21-39]]
+    SuperNode [21-39]
+      TextNode [21-25] 'test'
+      SimpleNode [25-29] Linebreak
+      TextNode [29-38] 'yes, test'
+  ParaNode [40-67]
+    SuperNode [40-60]
+      TextNode [40-60] 'the functionality of'
+  ParaNode [67-81]
+    SuperNode [67-79]
+      TextNode [67-79] 'A Blockquote'
+  AttributesNode{icon=warnings}
+  GenericBoxNode [97-121]'[ParaNode [100-111], SuperNode [111-121]]
+    ParaNode [100-111]
+      SuperNode [100-104]
+        TextNode [100-104] 'easy'
+    SuperNode [111-121]
+      TextNode [111-120] 'easy easy'
+  ParaNode [123-138]
+    SuperNode [123-136]
+      TextNode [123-136] 'And more text'

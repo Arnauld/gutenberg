@@ -1,0 +1,21 @@
+RootNode [0-104]
+  GenericBoxNode [0-21]'[SuperNode [3-21]]
+    SuperNode [3-21]
+      TextNode [3-7] 'test'
+      SimpleNode [7-11] Linebreak
+      TextNode [11-20] 'yes, test'
+  ParaNode [22-49]
+    SuperNode [22-42]
+      TextNode [22-42] 'the functionality of'
+  ParaNode [49-63]
+    SuperNode [49-61]
+      TextNode [49-61] 'A Blockquote'
+  GenericBoxNode [63-87]'[ParaNode [66-77], SuperNode [77-87]]
+    ParaNode [66-77]
+      SuperNode [66-70]
+        TextNode [66-70] 'easy'
+    SuperNode [77-87]
+      TextNode [77-86] 'easy easy'
+  ParaNode [89-104]
+    SuperNode [89-102]
+      TextNode [89-102] 'And more text'
