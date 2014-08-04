@@ -1,0 +1,7 @@
+RootNode [0-97]
+  AttributesNode{width=60%,float=left}
+  ParaNode [23-97]
+    SuperNode [23-95]
+      ExpImageNode [23-95]
+        SuperNode [0-0]
+          TextNode [25-55] 'This is the Image Floated Left'
