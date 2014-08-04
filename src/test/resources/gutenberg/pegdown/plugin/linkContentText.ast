@@ -1,0 +1,21 @@
+RootNode [0-273]
+  ParaNode [0-63]
+    SuperNode [0-61]
+      TextNode [0-54] 'To add a footnote, you insert a footnote tag like this'
+      RefLinkNode [54-60]
+        SuperNode [0-0]
+          TextNode [55-59] '^foo'
+      SpecialTextNode [60-61] '.'
+  ParaNode [63-163]
+    SuperNode [63-161]
+      TextNode [63-160] 'Then you add the footnote content later in the text, using the same tag, with a colon and a space'
+      SpecialTextNode [160-161] ':'
+  FootnoteNode{^foo:This is the footnote content.}
+  ParaNode [202-273]
+    SuperNode [202-271]
+      TextNode [202-206] 'That'
+      SimpleNode [206-207] Apostrophe
+      TextNode [207-211] 's it'
+      SpecialTextNode [211-212] '.'
+      TextNode [212-270] ' You can keep writing your text after the footnote content'
+      SpecialTextNode [270-271] '.'
