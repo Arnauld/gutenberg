@@ -80,7 +80,7 @@ public class PygmentsTest {
 
     public class RFormatter extends PyObject {
         public void write(PyObject ttype, PyString value) {
-            System.out.println("ttype = [" + ttype + "], value = [" + value + "]");
+            System.out.println("ttype = [" + ttype.getClass() + ":" + ttype + "], value = [" + value.getString() + "]");
         }
     }
 }
