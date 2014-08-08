@@ -9,6 +9,10 @@ import static gutenberg.util.RGB.rgb;
  */
 public class Style {
 
+    public static Style style() {
+        return new Style();
+    }
+
     private static final int NONE = 0;
     private static final int BOLD = 1 << 1;
     private static final int ITALIC = 1 << 2;
@@ -24,10 +28,6 @@ public class Style {
         this.foreground = foreground;
         this.background = background;
         this.flags = flags;
-    }
-
-    public static Style style() {
-        return new Style();
     }
 
     public Style bold() {
@@ -54,7 +54,7 @@ public class Style {
         return bg(rgb(color));
     }
 
-    public Style combine(Style other) {
+    public Style overrides(Style other) {
         RGB fg = other.foreground != null ? other.foreground : foreground;
         RGB bg = other.background != null ? other.background : background;
         return new Style(fg, bg, flags + other.flags);

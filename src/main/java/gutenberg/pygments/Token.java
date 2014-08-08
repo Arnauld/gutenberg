@@ -1,5 +1,12 @@
 package gutenberg.pygments;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.text.StrBuilder;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author <a href="http://twittercom/aloyer">@aloyer</a>
  */
@@ -8,7 +15,7 @@ public enum Token {
     Token(""),
     //
     Text(""),
-    Whitespace("w"),
+    Whitespace(Text, "w"),
     Escape("esc"),
     Error("err"),
     Other("x"),
@@ -44,7 +51,7 @@ public enum Token {
     Literal("l"),
     LiteralDate(Literal, "ld"),
     //
-    String("s"),
+    String(Literal, "s"),
     StringBacktick(String, "sb"),
     StringChar(String, "sc"),
     StringDoc(String, "sd"),
@@ -57,7 +64,7 @@ public enum Token {
     StringSingle(String, "s1"),
     StringSymbol(String, "ss"),
     //
-    Number("m"),
+    Number(Literal, "m"),
     NumberBin(Number, "mb"),
     NumberFloat(Number, "mf"),
     NumberHex(Number, "mh"),
@@ -76,20 +83,79 @@ public enum Token {
     CommentSingle(Comment, "c1"),
     CommentSpecial(Comment, "cs"),
     //
+
+    /**
+     * Generic tokens are for special lexers like the DiffLexer that doesn’t
+     * really highlight a programming language but a patch file.
+     * A generic, unstyled token. Normally you don’t use this token type.
+     */
     Generic("g"),
+
+    /**
+     * Marks the token value as deleted.
+     *
+     * @see #Generic
+     */
     GenericDeleted(Generic, "gd"),
+
+    /**
+     * Marks the token value as emphasized.
+     *
+     * @see #Generic
+     */
     GenericEmph(Generic, "ge"),
+    /**
+     * Marks the token value as an error message.
+     *
+     * @see #Generic
+     */
     GenericError(Generic, "gr"),
+    /**
+     * Marks the token value as headline.
+     *
+     * @see #Generic
+     */
     GenericHeading(Generic, "gh"),
+    /**
+     * Marks the token value as inserted.
+     *
+     * @see #Generic
+     */
     GenericInserted(Generic, "gi"),
+    /**
+     * Marks the token value as program output (e.g. for python cli lexer).
+     *
+     * @see #Generic
+     */
     GenericOutput(Generic, "go"),
+    /**
+     * Marks the token value as command prompt (e.g. bash lexer).
+     *
+     * @see #Generic
+     */
     GenericPrompt(Generic, "gp"),
+    /**
+     * Marks the token value as bold (e.g. for rst lexer).
+     *
+     * @see #Generic
+     */
     GenericStrong(Generic, "gs"),
+    /**
+     * Marks the token value as subheadline.
+     *
+     * @see #Generic
+     */
     GenericSubheading(Generic, "gu"),
+    /**
+     * Marks the token value as a part of an error traceback.
+     *
+     * @see #Generic
+     */
     GenericTraceback(Generic, "gt");
 
     private final Token parentToken;
     private final String shortName;
+    private String repr;
 
     private Token(String shortName) {
         this(null, shortName);
@@ -112,7 +178,7 @@ public enum Token {
                 case Punctuation:
                 case Comment:
                 case Generic:
-                    return Text;
+                    return Token;
             }
         }
         return parentToken;
@@ -120,5 +186,39 @@ public enum Token {
 
     public String shortName() {
         return shortName;
+    }
+
+    public static Optional<Token> findTokenByRepr(String repr) {
+        for (Token token : values()) {
+            if (token.repr().equals(repr))
+                return Optional.of(token);
+        }
+        return Optional.absent();
+    }
+
+    public List<Token> path() {
+        List<Token> chain = Lists.newArrayListWithCapacity(3);
+        Token token = this;
+        while (token != null) {
+            chain.add(token);
+            token = token.parent();
+        }
+        Collections.reverse(chain);
+        return chain;
+    }
+
+    public String repr() {
+        if (repr == null) {
+            StrBuilder b = new StrBuilder();
+            Token token = this;
+            while (token != null) {
+                if (!b.startsWith(token.name())) {
+                    b.insert(0, token.name());
+                }
+                token = token.parent();
+            }
+            repr = b.toString();
+        }
+        return repr;
     }
 }

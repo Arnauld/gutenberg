@@ -1,17 +1,18 @@
 package gutenberg.pygments;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import gutenberg.util.RGB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class StyleSheet {
+
+    private Logger log = LoggerFactory.getLogger(StyleSheet.class);
 
     private RGB backgroundColor;
     private RGB highlightColor;
@@ -48,18 +49,44 @@ public class StyleSheet {
         return new Style().fg(color);
     }
 
-    public Style styleOf(Token token) {
-        List<Style> chain = Lists.newArrayListWithCapacity(3);
-        while(token != null) {
-            Style style = styles.get(token);
-            chain.add(style);
-            token = token.parent();
+    protected Style rootStyleOf(Token token) {
+        switch (token) {
+            case Error:
+            case Other:
+            case Keyword:
+            case Name:
+            case Literal:
+            case String:
+            case Number:
+            case Operator:
+            case Punctuation:
+            case Comment:
+            case Generic:
+                return getStyle(Token.Text);
+            default:
+                Token parent = token.parent();
+                if(parent!=null)
+                    return rootStyleOf(parent);
         }
+        return Style.style();
+    }
 
-        int len = chain.size();
-        Style style = chain.get(len - 1);
-        for(int i=1; i< len; i++)
-            style = style.combine(chain.get(len - 1 - i));
-        return style;
+    public Style styleOf(Token token) {
+        Style combined = rootStyleOf(token);
+        for (Token tok : token.path()) {
+            Style style = getStyle(tok);
+            combined = combined.overrides(style);
+        }
+        return combined;
+    }
+
+    private Style getStyle(Token tok) {
+        Style style = styles.get(tok);
+        if (style != null) {
+            return style;
+        } else {
+            log.warn("No style defined for token of type: '{}'", tok);
+            return Style.style();
+        }
     }
 }

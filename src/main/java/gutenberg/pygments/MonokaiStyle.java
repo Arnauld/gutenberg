@@ -19,6 +19,8 @@ public class MonokaiStyle extends StyleSheet {
     }
 
     protected void initStyles() {
+        define(Token);
+        //
         define(Text, fg("#f8f8f2"));
         define(Whitespace);
         define(Error, fg("#960050").bg("#1e0010"));

@@ -5,13 +5,27 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.util.PythonInterpreter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class PygmentsTest {
 
     @Test
-    public void usecase() {
+    public void tokenize_known_language() {
+        Pygments pygments = new Pygments();
+        Tokens tokens = pygments.tokenize("clojure", "" +
+                "(defn year-end-evaluation\n" +
+                "  []\n" +
+                "  (if (> (rand) 0.5)\n" +
+                "    \"You get a raise!\"\n" +
+                "    \"Better luck next year!\"))");
+        System.out.println("PygmentsTest.tokenize_known_language" + tokens);
+    }
+
+    @Test
+    public void raw_usecase() {
         long startMs = System.currentTimeMillis();
         PythonInterpreter interpreter = new PythonInterpreter();
 
@@ -36,13 +50,36 @@ public class PygmentsTest {
 
         // Get the result that has been set in a variable
         PyObject result = interpreter.get("result");
-        System.out.println("PygmentsTest.usecase ::> " + result.getClass());
         PyString string = (PyString) result;
-        System.out.println(string.encode("utf8"));
+        assertThat(string.getString()).isEqualTo("" +
+                "Token.Punctuation\tu'('\n" +
+                "Token.Keyword.Declaration\tu'defn '\n" +
+                "Token.Name.Variable\tu'year-end-evaluation'\n" +
+                "Token.Text\tu'\\n  '\n" +
+                "Token.Punctuation\tu'['\n" +
+                "Token.Punctuation\tu']'\n" +
+                "Token.Text\tu'\\n  '\n" +
+                "Token.Punctuation\tu'('\n" +
+                "Token.Keyword\tu'if '\n" +
+                "Token.Punctuation\tu'('\n" +
+                "Token.Name.Builtin\tu'> '\n" +
+                "Token.Punctuation\tu'('\n" +
+                "Token.Name.Function\tu'rand'\n" +
+                "Token.Punctuation\tu')'\n" +
+                "Token.Text\tu' '\n" +
+                "Token.Literal.Number.Float\tu'0.5'\n" +
+                "Token.Punctuation\tu')'\n" +
+                "Token.Text\tu'\\n    '\n" +
+                "Token.Literal.String\tu'\"You get a raise!\"'\n" +
+                "Token.Text\tu'\\n    '\n" +
+                "Token.Literal.String\tu'\"Better luck next year!\"'\n" +
+                "Token.Punctuation\tu')'\n" +
+                "Token.Punctuation\tu')'\n" +
+                "Token.Text\tu'\\n'\n");
     }
 
     @Test
-    public void customFormatter() {
+    public void raw_customFormatter() {
         long startMs = System.currentTimeMillis();
         PythonInterpreter interpreter = new PythonInterpreter();
 

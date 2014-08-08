@@ -1,14 +1,18 @@
 package gutenberg.pygments;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.python.core.PyException;
 import org.python.core.PyGenerator;
+import org.python.core.PyObject;
 import org.python.core.PyTuple;
 import org.python.util.PythonInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,7 +21,7 @@ import java.util.Map;
 public class Lexers {
 
     public static Lexers getInstance() {
-        return new Lexers().loadAvailableLexers();
+        return new Lexers();
     }
 
     private static final Object NULL = new Object();
@@ -28,13 +32,14 @@ public class Lexers {
     /**
      * Lookup a Pygments lexer by an alias.
      *
-     * @param alias language alias for which a lexer is queried
+     * @param gateway
+     * @param alias   language alias for which a lexer is queried
      */
-    public Optional<Object> lookupLexer(String alias) {
+    public Optional<Object> lookupLexer(PyGateway gateway, String alias) {
         Object result = lexerCache.get(alias);
 
         if (result == null) {
-            result = pythonLookupLexer(alias, NULL);
+            result = evalLookupLexer(gateway, alias, NULL);
             lexerCache.put(alias, result);
         }
 
@@ -45,10 +50,10 @@ public class Lexers {
         }
     }
 
-    private Object pythonLookupLexer(String alias, Object notFoundFallback) {
+    private Object evalLookupLexer(PyGateway gateway, String alias, Object notFoundFallback) {
         Object result;
         try {
-            PythonInterpreter interpreter = new PythonInterpreter();
+            PythonInterpreter interpreter = gateway.getInterpreter();
             interpreter.set("alias", alias);
             interpreter.exec(""
                     + "from pygments.lexers import get_lexer_by_name\n"
@@ -62,8 +67,8 @@ public class Lexers {
         return result;
     }
 
-    Lexers loadAvailableLexers() {
-        PythonInterpreter interpreter = new PythonInterpreter();
+    public List<LexerInfo> loadAvailableLexers(PyGateway gateway) {
+        PythonInterpreter interpreter = gateway.getInterpreter();
 
         // Simple use Pygments as you would in Python
         interpreter.exec(""
@@ -71,10 +76,18 @@ public class Lexers {
                 + "result = get_all_lexers()");
 
         PyGenerator result = (PyGenerator) interpreter.get("result");
+        ArrayList<LexerInfo> infos = Lists.newArrayList();
         for (Object o : result) {
             PyTuple tuple = (PyTuple) o;
-            System.out.println(tuple + " ==> result = " + tuple.get(0) + "; " + tuple.get(1).getClass());
+            String name = (String) tuple.get(0);
+            List<String> aliases = Lists.newArrayListWithCapacity(3);
+            for (Object alias : (PyTuple) tuple.get(1)) {
+                String str = (String) alias;
+                aliases.add(str);
+            }
+            LexerInfo info = new LexerInfo(name, aliases);
+            infos.add(info);
         }
-        return this;
+        return infos;
     }
 }
