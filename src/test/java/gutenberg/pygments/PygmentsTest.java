@@ -5,6 +5,8 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.util.PythonInterpreter;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -21,17 +23,13 @@ public class PygmentsTest {
                 "  (if (> (rand) 0.5)\n" +
                 "    \"You get a raise!\"\n" +
                 "    \"Better luck next year!\"))");
-        System.out.println("PygmentsTest.tokenize_known_language" + tokens);
+        assertThat(tokens).isNotNull();
+        assertThat(tokens).contains(new TokenWithValue(Token.String, "\"You get a raise!\""));
     }
 
     @Test
     public void raw_usecase() {
-        long startMs = System.currentTimeMillis();
-        PythonInterpreter interpreter = new PythonInterpreter();
-
-        long interpMs = System.currentTimeMillis();
-        System.out.println("Python interpreter initialized in " + (interpMs - startMs) + "ms");
-
+        PythonInterpreter interpreter = new PyGateway().getInterpreter();
 
         // Set a variable with the content you want to work with
         interpreter.set("code", "" +
@@ -80,11 +78,7 @@ public class PygmentsTest {
 
     @Test
     public void raw_customFormatter() {
-        long startMs = System.currentTimeMillis();
-        PythonInterpreter interpreter = new PythonInterpreter();
-
-        long interpMs = System.currentTimeMillis();
-        System.out.println("Python interpreter initialized in " + (interpMs - startMs) + "ms");
+        PythonInterpreter interpreter = new PyGateway().getInterpreter();
 
         // Set a variable with the content you want to work with
         interpreter.set("code", "" +
@@ -93,7 +87,8 @@ public class PygmentsTest {
                 "  (if (> (rand) 0.5)\n" +
                 "    \"You get a raise!\"\n" +
                 "    \"Better luck next year!\"))");
-        interpreter.set("out", new RFormatter());
+        RFormatter rFormatter = new RFormatter();
+        interpreter.set("out", rFormatter);
 
         // Simple use Pygments as you would in Python
         interpreter.exec(""
@@ -106,18 +101,39 @@ public class PygmentsTest {
                 + "        for ttype, value in tokensource:\n"
                 + "            out.write(ttype, value)\n"
                 + "\n"
-                + "result = highlight(code, ClojureLexer(), ForwardFormatter())");
+                + "highlight(code, ClojureLexer(), ForwardFormatter())");
 
-        // Get the result that has been set in a variable
-        PyObject result = interpreter.get("result");
-        System.out.println("PygmentsTest.usecase ::> " + result.getClass());
-        PyString string = (PyString) result;
-        System.out.println(string.encode("utf8"));
+        assertThat(rFormatter.out.toString()).isEqualTo("" +
+                "Token.Punctuation:[(']\n" +
+                "Token.Keyword.Declaration:[defn ']\n" +
+                "Token.Name.Variable:[year-end-evaluation']\n" +
+                "Token.Text:[\\n  ']\n" +
+                "Token.Punctuation:[[']\n" +
+                "Token.Punctuation:[]']\n" +
+                "Token.Text:[\\n  ']\n" +
+                "Token.Punctuation:[(']\n" +
+                "Token.Keyword:[if ']\n" +
+                "Token.Punctuation:[(']\n" +
+                "Token.Name.Builtin:[> ']\n" +
+                "Token.Punctuation:[(']\n" +
+                "Token.Name.Function:[rand']\n" +
+                "Token.Punctuation:[)']\n" +
+                "Token.Text:[ ']\n" +
+                "Token.Literal.Number.Float:[0.5']\n" +
+                "Token.Punctuation:[)']\n" +
+                "Token.Text:[\\n    ']\n" +
+                "Token.Literal.String:[\"You get a raise!\"']\n" +
+                "Token.Text:[\\n    ']\n" +
+                "Token.Literal.String:[\"Better luck next year!\"']\n" +
+                "Token.Punctuation:[)']\n" +
+                "Token.Punctuation:[)']\n" +
+                "Token.Text:[\\n']\n");
     }
 
     public class RFormatter extends PyObject {
+        public StringBuilder out = new StringBuilder();
         public void write(PyObject ttype, PyString value) {
-            System.out.println("ttype = [" + ttype.getClass() + ":" + ttype + "], value = [" + value.getString() + "]");
+            out.append(ttype).append(":[").append(value.getString().replace("\n", "\\n")).append("']").append('\n');
         }
     }
 }

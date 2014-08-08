@@ -35,6 +35,7 @@ public class LexersTest {
     public void loadAvailableLexers() {
         Lexers lexers = new Lexers();
         List<LexerInfo> lexerInfos = lexers.loadAvailableLexers(gateway);
-        System.out.println("" + lexerInfos);
+        assertThat(lexerInfos).contains(new LexerInfo("Java", "java"));
+        assertThat(lexerInfos).contains(new LexerInfo("Clojure", "clojure", "clj"));
     }
 }

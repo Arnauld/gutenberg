@@ -11,4 +11,26 @@ public class TokenWithValue {
         this.token = token;
         this.value = value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TokenWithValue that = (TokenWithValue) o;
+        return token == that.token && value.equals(that.value);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = token.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "TokenWithValue{" + token + ", '" + value + '\'' + '}';
+    }
 }

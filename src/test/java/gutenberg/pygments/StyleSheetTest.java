@@ -13,8 +13,6 @@ public class StyleSheetTest {
         assertStyle(stylesheet.styleOf(Token.Name), new Style().fg("#f8f8f2"));
         assertStyle(stylesheet.styleOf(Token.NameAttribute), new Style().fg("#a6e22e"));
         assertStyle(stylesheet.styleOf(Token.NameBuiltin), new Style().fg("#f8f8f2"));
-
-        System.out.println("StyleSheetTest.fallback(" + Token.Generic.path()+ ")");
         assertStyle(stylesheet.styleOf(Token.Generic), new Style().fg("#f8f8f2"));
         assertStyle(stylesheet.styleOf(Token.GenericEmph), new Style().fg("#f8f8f2").italic());
     }
