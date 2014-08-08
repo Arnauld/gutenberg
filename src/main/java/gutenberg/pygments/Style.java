@@ -75,4 +75,12 @@ public class Style {
     public boolean isItalic() {
         return (flags & ITALIC) == ITALIC;
     }
+
+    public Style noitalic() {
+        return this;
+    }
+
+    public Style nobold() {
+        return this;
+    }
 }

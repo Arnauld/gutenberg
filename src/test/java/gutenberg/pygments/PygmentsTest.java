@@ -5,8 +5,6 @@ import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.util.PythonInterpreter;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -132,6 +130,7 @@ public class PygmentsTest {
 
     public class RFormatter extends PyObject {
         public StringBuilder out = new StringBuilder();
+
         public void write(PyObject ttype, PyString value) {
             out.append(ttype).append(":[").append(value.getString().replace("\n", "\\n")).append("']").append('\n');
         }

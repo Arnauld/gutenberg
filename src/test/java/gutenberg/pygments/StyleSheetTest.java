@@ -1,5 +1,6 @@
 package gutenberg.pygments;
 
+import gutenberg.pygments.styles.MonokaiStyle;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

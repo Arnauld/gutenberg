@@ -10,7 +10,7 @@ public class RGB {
 
     public static RGB rgb(String stringPresentation) {
         Pattern p = Pattern.compile("^#?([0-9a-f]{1,2})([0-9a-f]{1,2})([0-9a-f]{1,2})$");
-        Matcher matcher = p.matcher(stringPresentation);
+        Matcher matcher = p.matcher(stringPresentation.toLowerCase());
         if (!matcher.matches())
             throw new IllegalArgumentException("");
         int r = parseHex(matcher.group(1));

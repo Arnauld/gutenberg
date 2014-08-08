@@ -1,4 +1,6 @@
-package gutenberg.pygments;
+package gutenberg.pygments.styles;
+
+import gutenberg.pygments.StyleSheet;
 
 import static gutenberg.pygments.Style.style;
 import static gutenberg.pygments.Token.*;
