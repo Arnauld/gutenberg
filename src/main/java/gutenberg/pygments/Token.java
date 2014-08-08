@@ -169,6 +169,7 @@ public enum Token {
     public Token parent() {
         if (parentToken == null) {
             switch (this) {
+                case Text:
                 case Keyword:
                 case Name:
                 case Literal:

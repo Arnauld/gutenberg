@@ -72,7 +72,7 @@ public class Pygments {
 
             Token token = tokenOpt.or(Token.Text);
             if (!tokenOpt.isPresent()) {
-                log.warn("Unrecognized Pygments token {}, fallbacking to Text one", stringRepr);
+                log.warn("Unrecognized Pygments token {}, fallbacking to Text one", ttypeStr);
             }
 
             String valueString = value.getString();
