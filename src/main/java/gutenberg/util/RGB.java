@@ -31,6 +31,7 @@ public class RGB {
         this(r, g, b, 255);
     }
 
+    @SuppressWarnings("PointlessBitwiseExpression")
     public RGB(int r, int g, int b, int a) {
         value = ((a & 0xFF) << 24) |
                 ((r & 0xFF) << 16) |
@@ -64,6 +65,7 @@ public class RGB {
      *
      * @return the blue component.
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public int b() {
         return (rgba() >> 0) & 0xFF;
     }
