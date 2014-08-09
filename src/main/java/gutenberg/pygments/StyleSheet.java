@@ -2,6 +2,7 @@ package gutenberg.pygments;
 
 import com.google.common.collect.Maps;
 import gutenberg.util.RGB;
+import gutenberg.util.Style;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,10 @@ public class StyleSheet {
 
     protected static Style fg(String color) {
         return new Style().fg(color);
+    }
+
+    protected static Style bg(String color) {
+        return new Style().bg(color);
     }
 
     protected Style rootStyleOf(Token token) {

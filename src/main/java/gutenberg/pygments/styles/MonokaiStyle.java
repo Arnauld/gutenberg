@@ -2,7 +2,7 @@ package gutenberg.pygments.styles;
 
 import gutenberg.pygments.StyleSheet;
 
-import static gutenberg.pygments.Style.style;
+import static gutenberg.util.Style.style;
 import static gutenberg.pygments.Token.*;
 import static gutenberg.pygments.Token.Error;
 import static gutenberg.pygments.Token.Number;

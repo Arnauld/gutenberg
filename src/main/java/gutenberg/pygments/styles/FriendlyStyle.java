@@ -9,10 +9,10 @@ import static gutenberg.util.RGB.rgb;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class DefaultStyle extends StyleSheet {
+public class FriendlyStyle extends StyleSheet {
 
-    public DefaultStyle() {
-        backgroundColor(rgb("#f8f8f8"));
+    public FriendlyStyle() {
+        backgroundColor(rgb("#f0f0f0"));
         highlightColor(rgb("#49483e"));
         initStyles();
     }
@@ -25,46 +25,46 @@ public class DefaultStyle extends StyleSheet {
         define(Error, fg("#ff0000"));
         define(Other);
         //
-        define(Comment, fg("#408080").italic());
+        define(Comment, fg("#60a0b0").italic());
         define(CommentMultiline);
-        define(CommentPreproc, fg("#BC7A00").noitalic());
+        define(CommentPreproc, fg("#007020").noitalic());
         define(CommentSingle);
-        define(CommentSpecial);
+        define(CommentSpecial, bg("#fff0f0").noitalic());
         //
-        define(Keyword, fg("#008000").bold());
+        define(Keyword, fg("#007020").bold());
         define(KeywordConstant);
         define(KeywordDeclaration);
         define(KeywordNamespace);
         define(KeywordPseudo, style().nobold());
         define(KeywordReserved);
-        define(KeywordType, fg("#B00040").nobold());
+        define(KeywordType, fg("#902000").nobold());
         //
         define(Operator, fg("#666666"));
-        define(OperatorWord, fg("#AA22FF").bold());
+        define(OperatorWord, fg("#007020").bold());
         //
         define(Punctuation);
         //
         define(Name);
-        define(NameAttribute, fg("#7D9029"));
-        define(NameBuiltin, fg("#008000"));
+        define(NameAttribute, fg("#4070a0"));
+        define(NameBuiltin, fg("#007020"));
         define(NameBuiltinPseudo);
-        define(NameClass, fg("#0000FF").bold());
-        define(NameConstant, fg("#880000"));
-        define(NameDecorator, fg("#AA22FF"));
-        define(NameEntity, fg("#999999").bold());
-        define(NameException, fg("#D2413A").bold());
-        define(NameFunction, fg("#0000FF"));
+        define(NameClass, fg("#0e84b5").bold());
+        define(NameConstant, fg("#60add5"));
+        define(NameDecorator, fg("#555555").bold());
+        define(NameEntity, fg("#d55537").bold());
+        define(NameException, fg("#007020"));
+        define(NameFunction, fg("#06287e"));
         define(NameProperty);
-        define(NameLabel, fg("#A0A000"));
-        define(NameNamespace, fg("#0000FF").bold());
+        define(NameLabel, fg("#002070").bold());
+        define(NameNamespace, fg("#0e84b5").bold());
         define(NameOther);
-        define(NameTag, fg("#008000").bold());
-        define(NameVariable, fg("#19177C"));
+        define(NameTag, fg("#062873").bold());
+        define(NameVariable, fg("#bb60d5"));
         define(NameVariableClass);
         define(NameVariableGlobal);
         define(NameVariableInstance);
         //
-        define(Number, fg("#666666"));
+        define(Number, fg("#40a070"));
         define(NumberFloat);
         define(NumberHex);
         define(NumberInteger);
@@ -74,18 +74,18 @@ public class DefaultStyle extends StyleSheet {
         define(Literal);
         define(LiteralDate);
         //
-        define(String, fg("#BA2121"));
+        define(String, fg("#4070a0"));
         define(StringBacktick);
         define(StringChar);
-        define(StringDoc);
+        define(StringDoc, style().italic());
         define(StringDouble);
-        define(StringEscape);
+        define(StringEscape, fg("#4070a0").bold());
         define(StringHeredoc);
-        define(StringInterpol, fg("#BB6688").bold());
-        define(StringOther, fg("#008000"));
-        define(StringRegex, fg("#BB6688"));
+        define(StringInterpol, fg("#70a0d0").italic());
+        define(StringOther, fg("#c65d09"));
+        define(StringRegex, fg("#235388"));
         define(StringSingle);
-        define(StringSymbol);
+        define(StringSymbol, fg("#517918"));
         //
         define(Generic);
         define(GenericDeleted, fg("#A00000"));
@@ -94,7 +94,7 @@ public class DefaultStyle extends StyleSheet {
         define(GenericHeading, fg("#000080").bold());
         define(GenericInserted, fg("#00A000"));
         define(GenericOutput, fg("#888"));
-        define(GenericPrompt, fg("#000080").bold());
+        define(GenericPrompt, fg("#c65d09").bold());
         define(GenericStrong, style().bold());
         define(GenericSubheading, fg("#800080").bold());
         define(GenericTraceback, fg("#04D"));
