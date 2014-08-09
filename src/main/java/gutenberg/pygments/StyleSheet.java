@@ -54,6 +54,14 @@ public class StyleSheet {
         return new Style().bg(color);
     }
 
+    protected static Style fg(RGB color) {
+        return new Style().fg(color);
+    }
+
+    protected static Style bg(RGB color) {
+        return new Style().bg(color);
+    }
+
     protected Style rootStyleOf(Token token) {
         switch (token) {
             case Error:
@@ -70,7 +78,7 @@ public class StyleSheet {
                 return getStyle(Token.Text);
             default:
                 Token parent = token.parent();
-                if(parent!=null)
+                if (parent != null)
                     return rootStyleOf(parent);
         }
         return Style.style();

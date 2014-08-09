@@ -1,31 +1,22 @@
 package gutenberg.itext;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.TestSettings;
 import gutenberg.pygments.Pygments;
-import gutenberg.util.Style;
 import gutenberg.pygments.StyleSheet;
-import gutenberg.pygments.TokenWithValue;
-import gutenberg.pygments.Tokens;
 import gutenberg.pygments.styles.DefaultStyle;
 import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.pygments.styles.MonokaiStyle;
-import gutenberg.util.RGB;
+import gutenberg.pygments.styles.SolarizedDarkStyle;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -34,80 +25,48 @@ import java.util.Arrays;
 public class PygmentsPdfTest {
 
     private String workingDir;
-    private Document document;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException, DocumentException {
         workingDir = new TestSettings().workingDir();
     }
 
     @Test
     public void simpleGenerate() throws Exception {
-        openDocument("simpleGenerate");
-        BaseFont bf = createEmbeddedFont("font/Inconsolata.otf", BaseFont.WINANSI);
+        ITextContext iTextContext = openDocument("simpleGenerate");
 
-        Pygments pygments = new Pygments();
+        Document document = iTextContext.getDocument();
 
-        for (StyleSheet styleSheet : Arrays.asList(new DefaultStyle(), new MonokaiStyle(), new FriendlyStyle())) {
+        for (StyleSheet styleSheet : Arrays.asList(
+                new DefaultStyle(),
+                new FriendlyStyle(),
+                new MonokaiStyle(),
+                new SolarizedDarkStyle())) {
+
+            PygmentsAdapter pygmentsAdapter = new PygmentsAdapter(
+                    new Pygments(),
+                    styleSheet, ITextUtils.inconsolata(),
+                    12.0f);
+
             for (String[] lang : Arrays.asList(
                     s("clojure", clojureCode()),
                     s("java", javaCode()),
                     s("erlang", erlangCode()),
                     s("unknownlang", yukCode()))) {
 
-                Tokens tokens = pygments.tokenize(lang[0], lang[1]);
-                emit(bf, tokens, lang[0], styleSheet);
+                Paragraph stylePara = new Paragraph(
+                        "Style: " + styleSheet.getClass().getSimpleName() + ", lang: " + lang[0]);
+                document.add(stylePara);
+                for (Element element : pygmentsAdapter.process(lang[0], lang[1])) {
+                    document.add(element);
+                }
             }
         }
-        closeDocument();
+        iTextContext.close();
     }
 
-    private String[] s(String... s) {
+    private static String[] s(String... s) {
         return s;
-    }
-
-    private void emit(BaseFont bf, Tokens tokens, String lang, StyleSheet stylesheet) throws DocumentException {
-        Paragraph stylePara = new Paragraph(
-                "Style: " + stylesheet.getClass().getSimpleName() + ", lang: " + lang);
-        document.add(stylePara);
-
-        Paragraph p = new Paragraph();
-        for (TokenWithValue token : tokens) {
-            Style style = stylesheet.styleOf(token.token);
-
-            BaseColor color = toColor(style.fg());
-            int s = Font.NORMAL;
-            if (style.isBold()) {
-                s |= Font.BOLD;
-            }
-            if (style.isItalic()) {
-                s |= Font.ITALIC;
-            }
-            if (style.isStrikethrough()) {
-                s |= Font.STRIKETHRU;
-            }
-            if (style.isUnderline()) {
-                s |= Font.UNDERLINE;
-            }
-
-            Font font = new Font(bf, 12, s, color);
-            Chunk o = new Chunk(token.value, font);
-
-            RGB bg = style.bg();
-            if (bg != null)
-                o.setBackground(toColor(bg));
-            p.add(o);
-        }
-
-        PdfPCell cell = new PdfPCell(p);
-        cell.setBackgroundColor(toColor(stylesheet.backgroundColor()));
-        cell.setPaddingBottom(5.0f);
-
-        PdfPTable table = new PdfPTable(1);
-        table.addCell(cell);
-        table.setSpacingBefore(5.0f);
-        table.setSpacingAfter(5.0f);
-        document.add(table);
     }
 
     private String clojureCode() {
@@ -196,27 +155,9 @@ public class PygmentsPdfTest {
                 "-callback start_service() -> {ok, pid()}.";
     }
 
-    private BaseColor toColor(RGB fg) {
-        if (fg != null) {
-            return new BaseColor(fg.r(), fg.g(), fg.b());
-        }
-        return null;
-    }
-
-    private BaseFont createEmbeddedFont(String fontName, String encoding) throws Exception {
-        return BaseFont.createFont(fontName, encoding, BaseFont.EMBEDDED);
-    }
-
-    private File openDocument(String method) throws FileNotFoundException, DocumentException {
+    private ITextContext openDocument(String method) throws FileNotFoundException, DocumentException {
         File file = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
-
-        document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream(file));
-        document.open();
-        return file;
+        return new ITextContext().open(file);
     }
 
-    private void closeDocument() {
-        document.close();
-    }
 }
