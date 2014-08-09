@@ -27,17 +27,17 @@ public class FriendlyStyle extends StyleSheet {
         //
         define(Comment, fg("#60a0b0").italic());
         define(CommentMultiline);
-        define(CommentPreproc, fg("#007020").noitalic());
+        define(CommentPreproc, fg("#007020").noItalic());
         define(CommentSingle);
-        define(CommentSpecial, bg("#fff0f0").noitalic());
+        define(CommentSpecial, bg("#fff0f0").noItalic());
         //
         define(Keyword, fg("#007020").bold());
         define(KeywordConstant);
         define(KeywordDeclaration);
         define(KeywordNamespace);
-        define(KeywordPseudo, style().nobold());
+        define(KeywordPseudo, style().noBold());
         define(KeywordReserved);
-        define(KeywordType, fg("#902000").nobold());
+        define(KeywordType, fg("#902000").noBold());
         //
         define(Operator, fg("#666666"));
         define(OperatorWord, fg("#007020").bold());

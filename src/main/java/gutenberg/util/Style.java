@@ -64,7 +64,7 @@ public class Style {
         return new Style(foreground, background, italic, Bold.True, underline, strikethrough);
     }
 
-    public Style nobold() {
+    public Style noBold() {
         return new Style(foreground, background, italic, Bold.False, underline, strikethrough);
     }
 
@@ -76,7 +76,7 @@ public class Style {
         return new Style(foreground, background, Italic.True, bold, underline, strikethrough);
     }
 
-    public Style noitalic() {
+    public Style noItalic() {
         return new Style(foreground, background, Italic.False, bold, underline, strikethrough);
     }
 
@@ -88,7 +88,7 @@ public class Style {
         return new Style(foreground, background, italic, bold, Underline.True, strikethrough);
     }
 
-    public Style nounderline() {
+    public Style noUnderline() {
         return new Style(foreground, background, italic, bold, Underline.False, strikethrough);
     }
 
@@ -101,7 +101,7 @@ public class Style {
 
     }
 
-    public Style nostrikethrough() {
+    public Style noStrikethrough() {
         return new Style(foreground, background, italic, bold, underline, Strikethrough.False);
     }
 

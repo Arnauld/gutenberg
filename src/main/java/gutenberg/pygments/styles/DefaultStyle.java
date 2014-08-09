@@ -27,7 +27,7 @@ public class DefaultStyle extends StyleSheet {
         //
         define(Comment, fg("#408080").italic());
         define(CommentMultiline);
-        define(CommentPreproc, fg("#BC7A00").noitalic());
+        define(CommentPreproc, fg("#BC7A00").noItalic());
         define(CommentSingle);
         define(CommentSpecial);
         //
@@ -35,9 +35,9 @@ public class DefaultStyle extends StyleSheet {
         define(KeywordConstant);
         define(KeywordDeclaration);
         define(KeywordNamespace);
-        define(KeywordPseudo, style().nobold());
+        define(KeywordPseudo, style().noBold());
         define(KeywordReserved);
-        define(KeywordType, fg("#B00040").nobold());
+        define(KeywordType, fg("#B00040").noBold());
         //
         define(Operator, fg("#666666"));
         define(OperatorWord, fg("#AA22FF").bold());
