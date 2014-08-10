@@ -34,7 +34,6 @@ public class PygmentsPdfTest {
     @Test
     public void simpleGenerate() throws Exception {
         ITextContext iTextContext = openDocument("simpleGenerate");
-
         Document document = iTextContext.getDocument();
 
         for (StyleSheet styleSheet : Arrays.asList(
