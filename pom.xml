@@ -64,6 +64,17 @@
         </dependency>
 
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+        <!-- ascii-tech -->
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+        <dependency>
+            <groupId>org.technbolts</groupId>
+            <artifactId>asciitech</artifactId>
+            <classifier>third-parties</classifier>
+            <version>0.0.5</version>
+        </dependency>
+
+        <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
         <!-- iText -->
         <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 

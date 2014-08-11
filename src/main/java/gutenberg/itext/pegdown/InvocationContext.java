@@ -15,9 +15,11 @@ import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.Token;
 import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.RGB;
+import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -42,6 +44,7 @@ public class InvocationContext {
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
+    private final VariableResolver variableResolver;
 
     public InvocationContext() throws IOException, DocumentException {
         fontAwesome = new FontAwesomeAdapter();
@@ -60,6 +63,7 @@ public class InvocationContext {
                 FontFactory.getFont(FontFactory.HELVETICA, 16.0f, Font.BOLD, BaseColor.DARK_GRAY),
                 FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
         );
+        variableResolver = new VariableResolver().declare("image-dir", "/");
 
         initProcessors();
     }
@@ -121,12 +125,19 @@ public class InvocationContext {
             System.out.print("*");
         }
         System.out.print(node);
+
         if (node instanceof HeaderNode) {
             System.out.print(" L:" + ((HeaderNode) node).getLevel());
         }
         if (node instanceof VerbatimNode) {
             System.out.print(" T:" + ((VerbatimNode) node).getType());
         }
+        if (node instanceof RefImageNode) {
+            RefImageNode rn = (RefImageNode) node;
+            System.out.print(" separatorSpace: '" + rn.separatorSpace + "' refKey: '" + rn.referenceKey + "'");
+        }
+
+
         System.out.println();
     }
 
@@ -149,7 +160,7 @@ public class InvocationContext {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new DitaaVerbatimExtension(pygments)));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
@@ -176,6 +187,9 @@ public class InvocationContext {
         processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new CellStyler(defaultFont)));
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
+
+        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver));
+        processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
     }
 
     public Font peekFont() {
