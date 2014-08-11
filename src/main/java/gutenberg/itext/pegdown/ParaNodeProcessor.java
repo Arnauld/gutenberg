@@ -11,7 +11,7 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class ParaNodeProcessor extends Processor {
-    
+
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {
         List<Element> subs = context.processChildren(level, node);
@@ -30,8 +30,7 @@ public class ParaNodeProcessor extends Processor {
             if (c.getContent().equals("\n")) {
                 return new Chunk(" ");
             }
-        } else {
-            return sub;
         }
+        return sub;
     }
 }
