@@ -1,6 +1,7 @@
 package gutenberg.itext.pegdown;
 
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import gutenberg.itext.Sections;
 import org.pegdown.ast.HeaderNode;
@@ -22,10 +23,15 @@ public class HeaderNodeProcessor extends Processor {
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {
         HeaderNode hNode = (HeaderNode) node;
-        List<Element> subs = context.processChildren(level, node);
         int hLevel = hNode.getLevel();
 
+        Font font = sections.sectionTitlePrimaryFont(hLevel);
+        context.pushFont(font);
+        List<Element> subs = context.processChildren(level, node);
+        context.popFont();
+
         Paragraph p = new Paragraph();
+        p.setFont(font);
         p.addAll(subs);
 
         Element element = sections.newSection(p, hLevel);

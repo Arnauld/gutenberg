@@ -3,6 +3,7 @@ package gutenberg.itext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.itextpdf.text.Chapter;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
 
@@ -15,13 +16,25 @@ import java.util.List;
 public class Sections {
 
     private int chapterCount = 0;
-    private Section[] sections;
+    private Section[] sections = new Section[10];
     private List<Chapter> chapters = Lists.newArrayList();
+    private Font[] primarySectionTitleFonts;
+
+    public Sections(Font... primarySectionTitleFonts) {
+        this.primarySectionTitleFonts = primarySectionTitleFonts;
+    }
+
+    public Font sectionTitlePrimaryFont(int hLevel) {
+        Font font = null;
+        for (int i = 0; i < Math.min(hLevel, primarySectionTitleFonts.length); i++) {
+            if (primarySectionTitleFonts[i] != null) {
+                font = primarySectionTitleFonts[i];
+            }
+        }
+        return font;
+    }
 
     public Section newSection(Paragraph sectionTitle, int hLevel) {
-        if (sections == null) {
-            sections = new Section[10];
-        }
         Arrays.fill(sections, hLevel, sections.length, null);
         if (hLevel == 1) {
             Chapter chapter = new Chapter(sectionTitle, ++chapterCount);

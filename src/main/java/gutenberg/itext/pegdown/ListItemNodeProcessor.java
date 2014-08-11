@@ -48,7 +48,7 @@ public class ListItemNodeProcessor extends Processor {
 
         ListItem item = new ListItem(p);
         item.add(subList);
-        item.setListSymbol(bulletSymbol());
+        //item.setListSymbol(bulletSymbol());
         return elements(item);
     }
 

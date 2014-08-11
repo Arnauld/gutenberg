@@ -52,6 +52,11 @@ public class PegdownPdfTest {
         process("headers_01", "/gutenberg/pegdown/headers-01.md");
     }
 
+    @Test
+    public void list_01() throws Exception {
+        process("list_01", "/gutenberg/pegdown/list-01.md");
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         ITextContext iTextContext = openDocument(usecase);
         Document document = iTextContext.getDocument();

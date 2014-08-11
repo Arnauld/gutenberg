@@ -15,7 +15,6 @@ import gutenberg.util.RGB;
 import org.pegdown.ast.*;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -46,7 +45,11 @@ public class InvocationContext {
         styleSheet = new FriendlyStyle();
         verbatimFont = inconsolata();
         pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
-        sections = new Sections();
+        sections = new Sections(
+                FontFactory.getFont(FontFactory.HELVETICA, 18.0f, Font.BOLD, BaseColor.BLACK),
+                FontFactory.getFont(FontFactory.HELVETICA, 16.0f, Font.BOLD, BaseColor.DARK_GRAY),
+                FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
+        );
 
         initProcessors();
     }
@@ -70,10 +73,9 @@ public class InvocationContext {
         dumpProcessor(depth, node, processor);
 
         List<Element> elements = processor.process(depth, node, this);
-        if(depth == 0) {
+        if (depth == 0) {
             return rebuildChapterSectionTree(elements);
-        }
-        else {
+        } else {
             return elements;
         }
     }
@@ -82,17 +84,16 @@ public class InvocationContext {
         List<Element> tree = Lists.newArrayList();
         Section prev = null;
         for (Element element : elements) {
-            if(element instanceof Section) {
+            if (element instanceof Section) {
                 //
                 // Chapter are not added to the document
                 // but section are automatically added on parent section...
                 //
-                if(element instanceof Chapter)
+                if (element instanceof Chapter)
                     tree.add(element);
-                prev = (Section)element;
-            }
-            else {
-                if(prev != null)
+                prev = (Section) element;
+            } else {
+                if (prev != null)
                     prev.add(element);
                 else
                     tree.add(element);
@@ -141,9 +142,10 @@ public class InvocationContext {
         processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
-        processors.put(ListItemNodeProcessor.class, new ListItemNodeProcessor());
-        processors.put(HeaderNode.class, new HeaderNodeProcessor(sections));
+        processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
         processors.put(BulletListNode.class, new BulletListNodeProcessor());
+        processors.put(ListItemNode.class, new ListItemNodeProcessor());
+        processors.put(HeaderNode.class, new HeaderNodeProcessor(sections));
         processors.put(CodeNode.class, new CodeNodeProcessor(
                 verbatimFont(styleSheet.foregroundOf(Token.Text)),
                 toColor(styleSheet.backgroundColor())
