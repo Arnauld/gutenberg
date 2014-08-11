@@ -15,8 +15,17 @@ import java.util.List;
  */
 public class SimpleNodeProcessor extends Processor {
 
-    private BaseColor lineColor = BaseColor.LIGHT_GRAY;
-    private float lineWidth = 2.0f;
+    private final BaseColor lineColor;
+    private final float lineWidth;
+
+    public SimpleNodeProcessor() {
+        this(BaseColor.LIGHT_GRAY, 2.0f);
+    }
+
+    public SimpleNodeProcessor(BaseColor lineColor, float lineWidth) {
+        this.lineColor = lineColor;
+        this.lineWidth = lineWidth;
+    }
 
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {

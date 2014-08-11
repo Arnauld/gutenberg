@@ -4,6 +4,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import gutenberg.itext.AlternateTableRowBackground;
+import gutenberg.itext.CellStyler;
 import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import static gutenberg.itext.FontCopier.copyFont;
 import static gutenberg.itext.ITextUtils.inconsolata;
 import static gutenberg.itext.ITextUtils.toColor;
 
@@ -30,20 +34,26 @@ public class InvocationContext {
     private final Map<Class<?>, Processor> processors;
     private final Processor processorDefault;
     private final Stack<Font> fontStack;
+    private final Stack<TableInfos> tableStack;
     private final FontAwesomeAdapter fontAwesome;
     private final StyleSheet styleSheet;
     private final PygmentsAdapter pygments;
     private final Sections sections;
     private final BaseFont verbatimFont;
+    private final Stack<CellStyler> cellStylerStack;
+    private final Font defaultFont;
 
     public InvocationContext() throws IOException, DocumentException {
         fontAwesome = new FontAwesomeAdapter();
         processors = Maps.newHashMap();
         processorDefault = new DefaultProcessor();
+        defaultFont = FontFactory.getFont(FontFactory.HELVETICA, 12.0f, Font.NORMAL);
         fontStack = new Stack<Font>();
-        fontStack.push(FontFactory.getFont(FontFactory.HELVETICA, 12.0f, Font.NORMAL));
+        fontStack.push(defaultFont);
+        tableStack = new Stack<TableInfos>();
         styleSheet = new FriendlyStyle();
         verbatimFont = inconsolata();
+        cellStylerStack = new Stack<CellStyler>();
         pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
         sections = new Sections(
                 FontFactory.getFont(FontFactory.HELVETICA, 18.0f, Font.BOLD, BaseColor.BLACK),
@@ -153,6 +163,19 @@ public class InvocationContext {
         processors.put(StrongEmphSuperNode.class, new StrongEmphSuperNodeProcessor());
         processors.put(StrikeNode.class, new StrikeNodeProcessor());
         processors.put(SuperNode.class, new SuperNodeProcessor());
+
+        BaseColor veryLightGray = new BaseColor(230, 230, 230);
+        processors.put(TableNode.class, new TableNodeProcessor(new AlternateTableRowBackground(veryLightGray)));
+        Font headerFont = copyFont(defaultFont).bold().color(BaseColor.WHITE).get();
+        processors.put(TableHeaderNode.class, new TableHeaderNodeProcessor(new CellStyler(headerFont) {
+            @Override
+            public void applyStyle(PdfPCell cell) {
+                cell.setBackgroundColor(BaseColor.BLACK);
+            }
+        }));
+        processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new CellStyler(defaultFont)));
+        processors.put(TableRowNode.class, new TableRowNodeProcessor());
+        processors.put(TableCellNode.class, new TableCellNodeProcessor());
     }
 
     public Font peekFont() {
@@ -165,5 +188,29 @@ public class InvocationContext {
 
     public Font popFont() {
         return fontStack.pop();
+    }
+
+    public TableInfos peekTable() {
+        return tableStack.peek();
+    }
+
+    public void pushTable(TableInfos table) {
+        tableStack.push(table);
+    }
+
+    public TableInfos popTable() {
+        return tableStack.pop();
+    }
+
+    public CellStyler peekCellStyler() {
+        return cellStylerStack.peek();
+    }
+
+    public void pushCellStyler(CellStyler cellStyler) {
+        cellStylerStack.push(cellStyler);
+    }
+
+    public CellStyler popCellStyler() {
+        return cellStylerStack.pop();
     }
 }
