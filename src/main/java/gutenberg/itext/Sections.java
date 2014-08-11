@@ -44,7 +44,8 @@ public class Sections {
         return sections;
     }
 
-    public Section currentSection() {
+    @VisibleForTesting
+    Section currentSection() {
         Section prev = null;
         for (int i = 1; i < sections.length; i++) {
             Section section = sections[i];
