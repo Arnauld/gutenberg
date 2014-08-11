@@ -5,9 +5,12 @@ import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfPTableEvent;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.TokenWithValue;
@@ -59,14 +62,47 @@ public class PygmentsAdapter {
         }
 
         PdfPCell cell = new PdfPCell(p);
-        cell.setBackgroundColor(toColor(styleSheet.backgroundColor()));
         cell.setPaddingBottom(5.0f);
+        cell.setBorder(Rectangle.NO_BORDER);
 
         PdfPTable table = new PdfPTable(1);
         table.addCell(cell);
         table.setSpacingBefore(5.0f);
         table.setSpacingAfter(5.0f);
+        table.setTableEvent(new TableBackground(toColor(styleSheet.backgroundColor())));
         return Arrays.<Element>asList(table);
+    }
+
+    public static class TableBackground implements PdfPTableEvent {
+
+        private final BaseColor backgroundColor;
+
+        public TableBackground(BaseColor backgroundColor) {
+            this.backgroundColor = backgroundColor;
+        }
+
+        public void tableLayout(PdfPTable table, float[][] width, float[] height,
+                                int headerRows, int rowStart, PdfContentByte[] canvas) {
+            // because table is only one cell length, one can focus on using the first width
+            float xmin = width[0][0];
+            float xmax = width[0][1];
+            float ymin = height[height.length - 1];
+            float ymax = height[0];
+            float d  = 3;
+
+            PdfContentByte background = canvas[PdfPTable.BASECANVAS];
+            background.saveState();
+            background.setColorFill(backgroundColor);
+            background.roundRectangle(
+                    xmin - d,
+                    ymin - d,
+                    (xmax + d) - (xmin - d),
+                    (ymax + d) - (ymin - d),
+                    d+d);
+            background.fill();
+            background.restoreState();
+        }
+
     }
 
     private int calculateStyle(Style style) {

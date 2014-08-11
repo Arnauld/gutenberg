@@ -26,6 +26,10 @@ public class ITextContext {
         return document;
     }
 
+    public PdfWriter getPdfWriter() {
+        return pdfWriter;
+    }
+
     public ITextContext open(File fileOut) throws FileNotFoundException, DocumentException {
         this.document = new Document();
         this.fileOut = fileOut;
