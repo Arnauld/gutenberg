@@ -102,4 +102,8 @@ public class StyleSheet {
             return Style.style();
         }
     }
+
+    public RGB foregroundOf(Token token) {
+        return styleOf(token).fg();
+    }
 }
