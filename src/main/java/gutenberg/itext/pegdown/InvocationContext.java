@@ -2,12 +2,7 @@ package gutenberg.itext.pegdown;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.PygmentsAdapter;
@@ -42,7 +37,6 @@ public class InvocationContext {
     private final Sections sections;
     private final BaseFont verbatimFont;
 
-
     public InvocationContext() throws IOException, DocumentException {
         fontAwesome = new FontAwesomeAdapter();
         processors = Maps.newHashMap();
@@ -69,17 +63,48 @@ public class InvocationContext {
         return fontAwesome.symbol(symbol, size, color);
     }
 
-    public Collection<? extends Element> process(int depth, Node node) {
+    public List<Element> process(int depth, Node node) {
         Processor processor = processors.get(node.getClass());
-        processor = dumpProcessor(depth, node, processor);
-        return processor.process(depth, node, this);
+        if (processor == null)
+            processor = processorDefault;
+        dumpProcessor(depth, node, processor);
+
+        List<Element> elements = processor.process(depth, node, this);
+        if(depth == 0) {
+            return rebuildChapterSectionTree(elements);
+        }
+        else {
+            return elements;
+        }
     }
 
-    private Processor dumpProcessor(int depth, Node node, Processor processor) {
+    private List<Element> rebuildChapterSectionTree(List<Element> elements) {
+        List<Element> tree = Lists.newArrayList();
+        Section prev = null;
+        for (Element element : elements) {
+            if(element instanceof Section) {
+                //
+                // Chapter are not added to the document
+                // but section are automatically added on parent section...
+                //
+                if(element instanceof Chapter)
+                    tree.add(element);
+                prev = (Section)element;
+            }
+            else {
+                if(prev != null)
+                    prev.add(element);
+                else
+                    tree.add(element);
+            }
+        }
+        return tree;
+    }
+
+    private void dumpProcessor(int depth, Node node, Processor processor) {
         String indent = indent(depth);
         System.out.print(indent);
-        if (processor == null) {
-            processor = processorDefault;
+        if (processor == processorDefault) {
             System.out.print(" ");
         } else {
             System.out.print("*");
@@ -92,7 +117,6 @@ public class InvocationContext {
             System.out.print(" T:" + ((VerbatimNode) node).getType());
         }
         System.out.println();
-        return processor;
     }
 
     private static String indent(int level) {
@@ -116,6 +140,7 @@ public class InvocationContext {
         processors.put(ParaNode.class, new ParaNodeProcessor());
         processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments));
         processors.put(TextNode.class, new TextNodeProcessor());
+        processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(ListItemNodeProcessor.class, new ListItemNodeProcessor());
         processors.put(HeaderNode.class, new HeaderNodeProcessor(sections));
         processors.put(BulletListNode.class, new BulletListNodeProcessor());
@@ -125,6 +150,7 @@ public class InvocationContext {
         ));
         processors.put(StrongEmphSuperNode.class, new StrongEmphSuperNodeProcessor());
         processors.put(StrikeNode.class, new StrikeNodeProcessor());
+        processors.put(SuperNode.class, new SuperNodeProcessor());
     }
 
     public Font peekFont() {
