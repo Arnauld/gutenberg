@@ -37,13 +37,10 @@ public class GraphicsRenderer {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting);
 
         g2.setColor(backgroundColor);
-        //TODO: find out why the next line does not work
         g2.fillRect(0, 0, diagram.getWidth() + 10, diagram.getHeight() + 10);
-        /*for(int y = 0; y < diagram.getHeight(); y ++)
-            g2.drawLine(0, y, diagram.getWidth(), y);*/
-
         g2.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
 
+        //noinspection unchecked
         ArrayList<DiagramShape> shapes = diagram.getAllDiagramShapes();
 
         log.debug("Rendering " + shapes.size() + " shapes (groups flattened)");
@@ -151,12 +148,13 @@ public class GraphicsRenderer {
         //(BUT this is not possible since tags are applied to all shapes overlaping shapes)
 
 
+        //noinspection unchecked
         Collections.sort(storageShapes, new Shape3DOrderingComparator());
 
         g2.setStroke(normalStroke);
         shapesIt = storageShapes.iterator();
         while (shapesIt.hasNext()) {
-            DiagramShape shape = (DiagramShape) shapesIt.next();
+            DiagramShape shape = shapesIt.next();
 
             GeneralPath path;
             path = shape.makeIntoRenderPath(diagram);
@@ -199,10 +197,7 @@ public class GraphicsRenderer {
 
             if (shape.getPoints().isEmpty()) continue;
 
-            int size = shape.getPoints().size();
-
-            GeneralPath path;
-            path = shape.makeIntoRenderPath(diagram);
+            GeneralPath path = shape.makeIntoRenderPath(diagram);
 
             //fill
             if (path != null && shape.isClosed() && !shape.isStrokeDashed()) {
@@ -229,7 +224,7 @@ public class GraphicsRenderer {
         g2.setStroke(normalStroke);
         shapesIt = pointMarkers.iterator();
         while (shapesIt.hasNext()) {
-            DiagramShape shape = (DiagramShape) shapesIt.next();
+            DiagramShape shape = shapesIt.next();
             //if(shape.getType() != DiagramShape.TYPE_POINT_MARKER) continue;
 
             GeneralPath path;
@@ -245,9 +240,8 @@ public class GraphicsRenderer {
         //g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //renderTextLayer(diagram.getTextObjects().iterator());
 
-        Iterator<DiagramText> textIt = diagram.getTextObjects().iterator();
-        while (textIt.hasNext()) {
-            DiagramText text = textIt.next();
+        //noinspection unchecked
+        for (DiagramText text : (Iterable<DiagramText>) diagram.getTextObjects()) {
             g2.setFont(text.getFont());
             if (text.hasOutline()) {
                 g2.setColor(text.getOutlineColor());
@@ -277,6 +271,7 @@ public class GraphicsRenderer {
         }
     }
 
+    @SuppressWarnings("UnusedParameters")
     private void renderCustomShape(DiagramShape shape, Graphics2D g2) {
         log.warn("Unsupported custom shape rendering... {}", shape);
     }

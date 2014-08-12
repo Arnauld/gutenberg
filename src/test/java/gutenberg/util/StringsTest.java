@@ -16,28 +16,30 @@ public class StringsTest {
 
     @Test
     public void unindentBlock() {
-        assertThat(Strings.unindentBlock("" +
-                "          A nice diagram\n" +
-                "          \n" +
-                "    +--------+   +-------+    +-------+\n" +
-                "    |        | --+ ditaa +--> |       |\n" +
-                "    |  Text  |   +-------+    |diagram|\n" +
-                "    |Document|   |!magic!|    |       |\n" +
-                "    |     {d}|   |       |    |       |\n" +
-                "    +---+----+   +-------+    +-------+\n" +
-                "        :                         ^\n" +
-                "        |       Lots of work      |\n" +
-                "        +-------------------------+")).isEqualTo("" +
-                "      A nice diagram\n" +
-                "      \n" +
-                "+--------+   +-------+    +-------+\n" +
-                "|        | --+ ditaa +--> |       |\n" +
-                "|  Text  |   +-------+    |diagram|\n" +
-                "|Document|   |!magic!|    |       |\n" +
-                "|     {d}|   |       |    |       |\n" +
-                "+---+----+   +-------+    +-------+\n" +
-                "    :                         ^\n" +
-                "    |       Lots of work      |\n" +
-                "    +-------------------------+");
+        assertThat(Strings
+                .unindentBlock("" +
+                        "          A nice diagram\n" +
+                        "          \n" +
+                        "    +--------+   +-------+    +-------+\n" +
+                        "    |        | --+ ditaa +--> |       |\n" +
+                        "    |  Text  |   +-------+    |diagram|\n" +
+                        "    |Document|   |!magic!|    |       |\n" +
+                        "    |     {d}|   |       |    |       |\n" +
+                        "    +---+----+   +-------+    +-------+\n" +
+                        "        :                         ^\n" +
+                        "        |       Lots of work      |\n" +
+                        "        +-------------------------+"))
+                .isEqualTo("" +
+                        "      A nice diagram\n" +
+                        "      \n" +
+                        "+--------+   +-------+    +-------+\n" +
+                        "|        | --+ ditaa +--> |       |\n" +
+                        "|  Text  |   +-------+    |diagram|\n" +
+                        "|Document|   |!magic!|    |       |\n" +
+                        "|     {d}|   |       |    |       |\n" +
+                        "+---+----+   +-------+    +-------+\n" +
+                        "    :                         ^\n" +
+                        "    |       Lots of work      |\n" +
+                        "    +-------------------------+");
     }
 }

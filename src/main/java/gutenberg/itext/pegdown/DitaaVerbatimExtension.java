@@ -17,7 +17,7 @@ import org.stathissideris.ascii2image.core.ConversionOptions;
 import org.stathissideris.ascii2image.graphics.Diagram;
 import org.stathissideris.ascii2image.text.TextGrid;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -69,6 +69,7 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
         } catch (BadElementException e) {
             log.error("Oops", e);
         }
+
         // error case: fallback on raw verbatim rendering
         return pygments.process(lang, code);
     }
