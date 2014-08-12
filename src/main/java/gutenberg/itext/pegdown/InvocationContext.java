@@ -1,15 +1,14 @@
 package gutenberg.itext.pegdown;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.itext.AlternateTableRowBackground;
 import gutenberg.itext.CellStyler;
 import gutenberg.itext.FontAwesomeAdapter;
+import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
 import gutenberg.pegdown.plugin.Attributes;
@@ -55,7 +54,7 @@ public class InvocationContext {
     private final VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
 
-    public InvocationContext(Supplier<PdfWriter> writer) throws IOException, DocumentException {
+    public InvocationContext(ITextContext iTextContextSupplier) throws IOException, DocumentException {
         this.fontAwesome = new FontAwesomeAdapter();
         this.processors = Maps.newHashMap();
         this.processorDefault = new DefaultProcessor();
@@ -74,7 +73,7 @@ public class InvocationContext {
         );
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
 
-        initProcessors(writer);
+        initProcessors(iTextContextSupplier);
     }
 
     public Font verbatimFont(RGB rgb) {
@@ -189,11 +188,11 @@ public class InvocationContext {
         }
     }
 
-    protected void initProcessors(Supplier<PdfWriter> writer) {
+    protected void initProcessors(ITextContext iTextContext) {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new VerbatimDitaaExtension(pygments, writer)));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new VerbatimDitaaExtension(pygments, iTextContext)));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());

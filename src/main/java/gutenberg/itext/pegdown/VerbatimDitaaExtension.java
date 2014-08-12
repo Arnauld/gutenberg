@@ -5,10 +5,12 @@ import com.itextpdf.awt.PdfGraphics2D;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.ImgTemplate;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.ditaa.GraphicsRenderer;
+import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.util.Strings;
 import org.pegdown.ast.VerbatimNode;
@@ -32,11 +34,11 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
 
     private final Logger log = LoggerFactory.getLogger(VerbatimDitaaExtension.class);
     private final PygmentsAdapter pygments;
-    private final Supplier<PdfWriter> pdfWriter;
+    private final ITextContext iTextContext;
 
-    public VerbatimDitaaExtension(PygmentsAdapter pygments, Supplier<PdfWriter> pdfWriter) {
+    public VerbatimDitaaExtension(PygmentsAdapter pygments, ITextContext iTextContext) {
         this.pygments = pygments;
-        this.pdfWriter = pdfWriter;
+        this.iTextContext = iTextContext;
     }
 
     public boolean accepts(String lang) {
@@ -49,26 +51,34 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
 
         try {
             String trimmed = Strings.unindentBlock(code);
+
+            log.debug("Initializing text grid");
             TextGrid grid = new TextGrid();
             grid.initialiseWithText(trimmed, null);
 
             ConversionOptions options = new ConversionOptions();
-            options.renderingOptions.setRenderDebugLines(true);
+            options.renderingOptions.setRenderDebugLines(false);
 
+            log.debug("Diagram creation");
             Diagram diagram = new Diagram(grid, options);
 
-            PdfContentByte cb = pdfWriter.get().getDirectContent();
+            PdfWriter pdfWriter = iTextContext.getPdfWriter();
+            PdfContentByte cb = pdfWriter.getDirectContent();
             float width = (float) diagram.getWidth();
             float height = (float) diagram.getHeight();
 
             PdfTemplate template = cb.createTemplate(width, height);
             final Graphics2D g2 = new PdfGraphics2D(template, width, height);
 
+            log.debug("Rendering diagram");
             GraphicsRenderer renderer = new GraphicsRenderer();
             renderer.render(diagram, g2, options.renderingOptions);
             g2.dispose();
 
-            return elements(new ImgTemplate(template));
+            log.debug("Rendering diagram done");
+            ImgTemplate imgTemplate = new ImgTemplate(template);
+            scaleToFit(imgTemplate, iTextContext.getDocumentArtBox());
+            return elements(imgTemplate);
 
         } catch (UnsupportedEncodingException e) {
             log.error("Oops", e);
@@ -78,5 +88,13 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
 
         // error case: fallback on raw verbatim rendering
         return pygments.process(lang, code, context.peekAttributes(level));
+    }
+
+    private void scaleToFit(ImgTemplate img, Rectangle box) {
+        float scaleWidth = box.getWidth() / img.getWidth();
+        float scaleHeight = box.getHeight() / img.getHeight();
+        float scale = Math.min(scaleHeight, scaleWidth);
+        if(scale<1)
+            img.scalePercent(scale*100f);
     }
 }

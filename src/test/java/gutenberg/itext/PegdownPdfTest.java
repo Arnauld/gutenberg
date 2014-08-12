@@ -1,6 +1,5 @@
 package gutenberg.itext;
 
-import com.google.common.base.Suppliers;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -78,6 +77,11 @@ public class PegdownPdfTest {
         process("code_02_w_attributes", "/gutenberg/pegdown/code-02-w-attributes.md");
     }
 
+    @Test
+    public void code_03_very_large_ditaa_attributes() throws Exception {
+        process("code_03_very_large_ditaa", "/gutenberg/pegdown/code-03-very-large-ditaa.md");
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         ITextContext iTextContext = openDocument(usecase);
         Document document = iTextContext.getDocument();
@@ -90,7 +94,7 @@ public class PegdownPdfTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
-        InvocationContext context = new InvocationContext(Suppliers.ofInstance(iTextContext.getPdfWriter()));
+        InvocationContext context = new InvocationContext(iTextContext);
 
         List<Element> elements = context.process(0, rootNode);
         for (Element element : elements) {
