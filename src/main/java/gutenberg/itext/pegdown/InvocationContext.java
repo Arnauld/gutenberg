@@ -21,6 +21,8 @@ import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.RGB;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,6 +39,8 @@ import static java.util.Arrays.fill;
  */
 public class InvocationContext {
 
+    private Logger log = LoggerFactory.getLogger(InvocationContext.class);
+
     private final Map<Class<?>, Processor> processors;
     private final Processor processorDefault;
     private final Stack<Font> fontStack;
@@ -49,11 +53,9 @@ public class InvocationContext {
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
     private final VariableResolver variableResolver;
-    private final Supplier<PdfWriter> writer;
     private Attributes[] attributesSeq = new Attributes[20];
 
     public InvocationContext(Supplier<PdfWriter> writer) throws IOException, DocumentException {
-        this.writer = writer;
         this.fontAwesome = new FontAwesomeAdapter();
         this.processors = Maps.newHashMap();
         this.processorDefault = new DefaultProcessor();
@@ -91,6 +93,7 @@ public class InvocationContext {
         Processor processor = processors.get(node.getClass());
         if (processor == null)
             processor = processorDefault;
+
         dumpProcessor(depth, node, processor);
 
         List<Element> elements = processor.process(depth, node, this);
@@ -124,28 +127,31 @@ public class InvocationContext {
     }
 
     private void dumpProcessor(int depth, Node node, Processor processor) {
-        String indent = indent(depth);
-        System.out.print(indent);
-        if (processor == processorDefault) {
-            System.out.print(" ");
-        } else {
-            System.out.print("*");
-        }
-        System.out.print(node);
+        if (log.isDebugEnabled()) {
+            String indent = indent(depth);
 
-        if (node instanceof HeaderNode) {
-            System.out.print(" L:" + ((HeaderNode) node).getLevel());
-        }
-        if (node instanceof VerbatimNode) {
-            System.out.print(" T:" + ((VerbatimNode) node).getType());
-        }
-        if (node instanceof RefImageNode) {
-            RefImageNode rn = (RefImageNode) node;
-            System.out.print(" separatorSpace: '" + rn.separatorSpace + "' refKey: '" + rn.referenceKey + "'");
-        }
+            StringBuilder out = new StringBuilder();
+            out.append(indent);
+            if (processor == processorDefault) {
+                out.append(" ");
+            } else {
+                out.append("*");
+            }
+            out.append(node);
 
+            if (node instanceof HeaderNode) {
+                out.append(" L:").append(((HeaderNode) node).getLevel());
+            }
+            if (node instanceof VerbatimNode) {
+                out.append(" T:").append(((VerbatimNode) node).getType());
+            }
+            if (node instanceof RefImageNode) {
+                RefImageNode rn = (RefImageNode) node;
+                out.append(" separatorSpace: '").append(rn.separatorSpace).append("' refKey: '").append(rn.referenceKey).append("'");
+            }
 
-        System.out.println();
+            log.debug(out.toString());
+        }
     }
 
     private static String indent(int level) {
