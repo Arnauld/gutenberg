@@ -1,6 +1,8 @@
 package gutenberg.itext.pegdown;
 
 import com.itextpdf.text.Element;
+import org.pegdown.ast.Node;
+import org.pegdown.ast.VerbatimNode;
 
 import java.util.List;
 
@@ -10,5 +12,5 @@ import java.util.List;
 public interface VerbatimExtension {
     boolean accepts(String lang);
 
-    List<Element> process(String lang, String code);
+    List<Element> process(int level, VerbatimNode node, InvocationContext context);
 }
