@@ -82,6 +82,11 @@ public class PegdownPdfTest {
         process("code_03_very_large_ditaa", "/gutenberg/pegdown/code-03-very-large-ditaa.md");
     }
 
+    @Test
+    public void code_04_uml() throws Exception {
+        process("code_04_uml", "/gutenberg/pegdown/code-04-uml.md");
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         ITextContext iTextContext = openDocument(usecase);
         Document document = iTextContext.getDocument();

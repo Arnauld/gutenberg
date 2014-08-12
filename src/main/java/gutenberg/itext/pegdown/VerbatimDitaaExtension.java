@@ -1,6 +1,7 @@
 package gutenberg.itext.pegdown;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
 import com.itextpdf.awt.PdfGraphics2D;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Element;
@@ -17,11 +18,13 @@ import org.pegdown.ast.VerbatimNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stathissideris.ascii2image.core.ConversionOptions;
+import org.stathissideris.ascii2image.graphics.CustomShapeDefinition;
 import org.stathissideris.ascii2image.graphics.Diagram;
 import org.stathissideris.ascii2image.text.TextGrid;
 
 import java.awt.Graphics2D;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
 
 import static gutenberg.itext.pegdown.Processor.elements;

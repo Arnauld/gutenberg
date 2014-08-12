@@ -156,8 +156,7 @@ public class GraphicsRenderer {
         while (shapesIt.hasNext()) {
             DiagramShape shape = shapesIt.next();
 
-            GeneralPath path;
-            path = shape.makeIntoRenderPath(diagram);
+            GeneralPath path = shape.makeIntoRenderPath(diagram);
 
             if (!shape.isStrokeDashed()) {
                 if (shape.getFillColor() != null)
