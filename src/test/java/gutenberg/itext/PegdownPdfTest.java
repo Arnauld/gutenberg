@@ -1,5 +1,6 @@
 package gutenberg.itext;
 
+import com.google.common.base.Suppliers;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -84,7 +85,7 @@ public class PegdownPdfTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
-        InvocationContext context = new InvocationContext();
+        InvocationContext context = new InvocationContext(Suppliers.ofInstance(iTextContext.getPdfWriter()));
 
         List<Element> elements = context.process(0, rootNode);
         for (Element element : elements) {

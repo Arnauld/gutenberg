@@ -1,10 +1,12 @@
 package gutenberg.itext.pegdown;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.itext.AlternateTableRowBackground;
 import gutenberg.itext.CellStyler;
 import gutenberg.itext.FontAwesomeAdapter;
@@ -45,27 +47,29 @@ public class InvocationContext {
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
     private final VariableResolver variableResolver;
+    private final Supplier<PdfWriter> writer;
 
-    public InvocationContext() throws IOException, DocumentException {
-        fontAwesome = new FontAwesomeAdapter();
-        processors = Maps.newHashMap();
-        processorDefault = new DefaultProcessor();
-        defaultFont = FontFactory.getFont(FontFactory.HELVETICA, 12.0f, Font.NORMAL);
-        fontStack = new Stack<Font>();
-        fontStack.push(defaultFont);
-        tableStack = new Stack<TableInfos>();
-        styleSheet = new FriendlyStyle();
-        verbatimFont = inconsolata();
-        cellStylerStack = new Stack<CellStyler>();
-        pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
-        sections = new Sections(
+    public InvocationContext(Supplier<PdfWriter> writer) throws IOException, DocumentException {
+        this.writer = writer;
+        this.fontAwesome = new FontAwesomeAdapter();
+        this.processors = Maps.newHashMap();
+        this.processorDefault = new DefaultProcessor();
+        this.defaultFont = FontFactory.getFont(FontFactory.HELVETICA, 12.0f, Font.NORMAL);
+        this.fontStack = new Stack<Font>();
+        this.fontStack.push(defaultFont);
+        this.tableStack = new Stack<TableInfos>();
+        this.styleSheet = new FriendlyStyle();
+        this.verbatimFont = inconsolata();
+        this.cellStylerStack = new Stack<CellStyler>();
+        this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
+        this.sections = new Sections(
                 FontFactory.getFont(FontFactory.HELVETICA, 18.0f, Font.BOLD, BaseColor.BLACK),
                 FontFactory.getFont(FontFactory.HELVETICA, 16.0f, Font.BOLD, BaseColor.DARK_GRAY),
                 FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
         );
-        variableResolver = new VariableResolver().declare("image-dir", "/");
+        this.variableResolver = new VariableResolver().declare("image-dir", "/");
 
-        initProcessors();
+        initProcessors(writer);
     }
 
     public Font verbatimFont(RGB rgb) {
@@ -156,11 +160,11 @@ public class InvocationContext {
         return subs;
     }
 
-    protected void initProcessors() {
+    protected void initProcessors(Supplier<PdfWriter> writer) {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new DitaaVerbatimExtension(pygments)));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new DitaaVerbatimExtension(pygments, writer)));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
