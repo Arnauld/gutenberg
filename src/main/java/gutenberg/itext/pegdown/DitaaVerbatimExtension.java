@@ -43,8 +43,10 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
             TextGrid grid = new TextGrid();
             grid.initialiseWithText(code, null);
 
+            float scale = 8.0f;
+
             ConversionOptions options = new ConversionOptions();
-            options.renderingOptions.setScale(2.0f);
+            options.renderingOptions.setScale(scale);
             Diagram diagram = new Diagram(grid, options);
 
             RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
@@ -52,7 +54,7 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(image, "png", os);
             Image img = Image.getInstance(os.toByteArray());
-            img.scalePercent(0.5f*100f);
+            img.scalePercent(100f/scale);
 
             return elements(img);
 
