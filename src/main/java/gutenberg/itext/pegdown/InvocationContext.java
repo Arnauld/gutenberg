@@ -10,6 +10,8 @@ import gutenberg.itext.CellStyler;
 import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
+import gutenberg.pegdown.plugin.Attributes;
+import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.Token;
@@ -19,7 +21,6 @@ import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -27,6 +28,7 @@ import java.util.Stack;
 import static gutenberg.itext.FontCopier.copyFont;
 import static gutenberg.itext.ITextUtils.inconsolata;
 import static gutenberg.itext.ITextUtils.toColor;
+import static java.util.Arrays.fill;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -45,6 +47,7 @@ public class InvocationContext {
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
     private final VariableResolver variableResolver;
+    private Attributes[] attributesSeq = new Attributes[20];
 
     public InvocationContext() throws IOException, DocumentException {
         fontAwesome = new FontAwesomeAdapter();
@@ -151,16 +154,36 @@ public class InvocationContext {
     public List<Element> processChildren(int level, Node node) {
         List<Element> subs = Lists.newArrayList();
         for (Node child : node.getChildren()) {
-            subs.addAll(process(level + 1, child));
+            // attributes apply on siblings :)
+            Attributes attributes = consumeAttributes(level + 1);
+            List<Element> elements = process(level + 1, child);
+            applyAttributes(elements, attributes);
+            subs.addAll(elements);
         }
         return subs;
+    }
+
+    private void applyAttributes(List<Element> elements, Attributes attributes) {
+        for (Element e : elements)
+            applyAttributes(e, attributes);
+    }
+
+    private void applyAttributes(Element e, Attributes attributes) {
+        String align = attributes.getString("align");
+        if ("center".equalsIgnoreCase(align)) {
+            if (e instanceof Image) {
+                ((Image) e).setAlignment(Image.MIDDLE);
+            } else if (e instanceof Paragraph) {
+                ((Paragraph) e).setAlignment(Element.ALIGN_CENTER);
+            }
+        }
     }
 
     protected void initProcessors() {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new DitaaVerbatimExtension(pygments)));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new VerbatimDitaaExtension(pygments)));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
@@ -190,6 +213,7 @@ public class InvocationContext {
 
         processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver));
         processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
+        processors.put(AttributesNode.class, new AttributesNodeProcessor());
     }
 
     public Font peekFont() {
@@ -226,5 +250,44 @@ public class InvocationContext {
 
     public CellStyler popCellStyler() {
         return cellStylerStack.pop();
+    }
+
+    public void pushAttributes(int level, Attributes attributes) {
+        if (level >= attributesSeq.length) {
+            Attributes[] increased = new Attributes[level + 5];
+            System.arraycopy(attributesSeq, 0, increased, 0, attributesSeq.length);
+            attributesSeq = increased;
+        }
+
+        fill(attributesSeq, level, attributesSeq.length, null);
+        attributesSeq[level] = attributes;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Attributes peekAttributes(int level) {
+        return peekAttributes(level, false);
+    }
+
+    public Attributes peekAttributes(int level, boolean lookupForAncestor) {
+        if (level >= attributesSeq.length || attributesSeq[level] == null) {
+            if (lookupForAncestor) {
+                for (int i = level; i >= 0; i--) {
+                    if (attributesSeq[i] != null)
+                        return attributesSeq[i];
+                }
+            }
+
+            // still there, nothing found in ancestor tree
+            return new Attributes();
+        }
+        return attributesSeq[level];
+    }
+
+    @SuppressWarnings("unchecked")
+    private Attributes consumeAttributes(int level) {
+        Attributes map = peekAttributes(level);
+        if (level < attributesSeq.length)
+            fill(attributesSeq, level, attributesSeq.length, null);
+        return map;
     }
 }

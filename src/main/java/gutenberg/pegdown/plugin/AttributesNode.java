@@ -33,4 +33,7 @@ public class AttributesNode extends AbstractNode {
         return "AttributesNode{" + text + '}';
     }
 
+    public Attributes asAttributes() {
+        return new Attributes().appendCommaSeparatedKeyValuePairs(text);
+    }
 }

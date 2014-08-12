@@ -4,6 +4,7 @@ import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import gutenberg.itext.PygmentsAdapter;
+import org.pegdown.ast.VerbatimNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stathissideris.ascii2image.core.ConversionOptions;
@@ -25,12 +26,12 @@ import static java.util.Arrays.asList;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class DitaaVerbatimExtension implements VerbatimExtension {
+public class VerbatimDitaaExtension implements VerbatimExtension {
 
-    private final Logger log = LoggerFactory.getLogger(DitaaVerbatimExtension.class);
+    private final Logger log = LoggerFactory.getLogger(VerbatimDitaaExtension.class);
     private final PygmentsAdapter pygments;
 
-    public DitaaVerbatimExtension(PygmentsAdapter pygments) {
+    public VerbatimDitaaExtension(PygmentsAdapter pygments) {
         this.pygments = pygments;
     }
 
@@ -38,8 +39,12 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
         return asList("ditaa").contains(lang.toLowerCase());
     }
 
-    public List<Element> process(String lang, String code) {
+    public List<Element> process(int level, VerbatimNode vNode, InvocationContext context) {
+        String lang = vNode.getType();
+        String code = vNode.getText();
+
         try {
+
             TextGrid grid = new TextGrid();
             grid.initialiseWithText(code, null);
 
@@ -47,6 +52,7 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
 
             ConversionOptions options = new ConversionOptions();
             options.renderingOptions.setScale(scale);
+            options.renderingOptions.setRenderDebugLines(true);
             Diagram diagram = new Diagram(grid, options);
 
             RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
@@ -54,7 +60,7 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             ImageIO.write(image, "png", os);
             Image img = Image.getInstance(os.toByteArray());
-            img.scalePercent(100f/scale);
+            img.scalePercent(100f / scale);
 
             return elements(img);
 
@@ -67,6 +73,6 @@ public class DitaaVerbatimExtension implements VerbatimExtension {
         } catch (IOException e) {
             log.error("Oops", e);
         }
-        return pygments.process(lang, code);
+        return pygments.process(lang, code, context.peekAttributes(level));
     }
 }

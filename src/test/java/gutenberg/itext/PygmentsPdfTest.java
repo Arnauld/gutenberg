@@ -5,6 +5,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import gutenberg.TestSettings;
+import gutenberg.pegdown.plugin.Attributes;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.styles.DefaultStyle;
@@ -56,7 +57,7 @@ public class PygmentsPdfTest {
                 Paragraph stylePara = new Paragraph(
                         "Style: " + styleSheet.getClass().getSimpleName() + ", lang: " + lang[0]);
                 document.add(stylePara);
-                for (Element element : pygmentsAdapter.process(lang[0], lang[1])) {
+                for (Element element : pygmentsAdapter.process(lang[0], lang[1], new Attributes())) {
                     document.add(element);
                 }
             }
