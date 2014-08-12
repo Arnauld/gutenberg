@@ -2,6 +2,7 @@ package gutenberg.pegdown;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pegdown.Extensions;
@@ -40,9 +41,10 @@ public class PegdownTest extends AbstractPegdownTest {
     }
 
     @Test
-    public void tableAST() throws Exception {
-        String mkd = loadResource("tableText.md").trim();
-        String ast = loadResource("tableText.ast").trim();
+    @Ignore("Multiline cell not supported")
+    public void table_multi_line_cell() throws Exception {
+        String mkd = loadResource("table-multiline-cells.md").trim();
+        String ast = loadResource("table-multiline-cells.ast").trim();
 
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
@@ -53,7 +55,7 @@ public class PegdownTest extends AbstractPegdownTest {
     }
 
     @Test
-    public void table1AST() throws Exception {
+    public void table1AST__with_caption_column_alignment_colspan() throws Exception {
         String mkd = loadResource("table1.md").trim();
         String ast = loadResource("table1.ast").trim();
 
@@ -99,7 +101,11 @@ public class PegdownTest extends AbstractPegdownTest {
         }
 
         private String toStringNode(TableRowNode node) {
-            return node.toString() + ", '" + data.substring(node.getStartIndex(), node.getEndIndex()) + "'";
+            return node.toString() + ", '" + escape(data.substring(node.getStartIndex(), node.getEndIndex())) + "'";
+        }
+
+        private String escape(String s) {
+            return s.replace("\n", "\\n");
         }
 
         private String toStringNodes(List<TableColumnNode> columns) {

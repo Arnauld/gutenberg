@@ -1,9 +1,49 @@
-|             |          Grouping           ||
-First Header  | Second Header | Third Header |
- ------------ | :-----------: | -----------: |
-Content       |          *Long Cell*        ||
-Content       |   **Cell**    |         Cell |
-
-New section   |     More      |         Data |
-And more      | With an escaped '\|'         ||  
-[Prototype table]
+RootNode [0-350]
+  TableNode [0-350], [None, Center, Right]
+    TableHeaderNode [0-94]
+      TableRowNode [0-47], '|             |          Grouping           ||\n'
+        TableCellNode [1-15], colspan: 1
+          TextNode [1-14] ' '
+        TableCellNode [15-46], colspan: 2
+          TextNode [25-44] 'Grouping '
+      TableRowNode [47-94], 'First Header  | Second Header | Third Header |\n'
+        TableCellNode [47-62], colspan: 1
+          TextNode [47-61] 'First Header '
+        TableCellNode [62-78], colspan: 1
+          TextNode [63-77] 'Second Header '
+        TableCellNode [78-93], colspan: 1
+          TextNode [79-92] 'Third Header '
+    TableBodyNode [141-332]
+      TableRowNode [141-188], 'Content       |          *Long Cell*        ||\n'
+        TableCellNode [141-156], colspan: 1
+          TextNode [141-155] 'Content '
+        TableCellNode [156-187], colspan: 2
+          StrongEmphSuperNode [166-177]
+            TextNode [167-176] 'Long Cell'
+          TextNode [177-185] ' '
+      TableRowNode [188-235], 'Content       |   **Cell**    |         Cell |\n'
+        TableCellNode [188-203], colspan: 1
+          TextNode [188-202] 'Content '
+        TableCellNode [203-219], colspan: 1
+          StrongEmphSuperNode [206-214]
+            TextNode [208-212] 'Cell'
+          TextNode [214-218] ' '
+        TableCellNode [219-234], colspan: 1
+          TextNode [228-233] 'Cell '
+      TableRowNode [235-282], 'New section   |     More      |         Data |\n'
+        TableCellNode [235-250], colspan: 1
+          TextNode [235-249] 'New section '
+        TableCellNode [250-266], colspan: 1
+          TextNode [255-265] 'More '
+        TableCellNode [266-281], colspan: 1
+          TextNode [275-280] 'Data '
+      TableRowNode [282-332], 'And more      | With an escaped '\|'         ||  \n'
+        TableCellNode [282-297], colspan: 1
+          TextNode [282-296] 'And more '
+        TableCellNode [297-329], colspan: 2
+          TextNode [298-314] 'With an escaped '
+          QuotedNode [314-318]
+            SpecialTextNode [315-317] '|'
+          TextNode [318-327] ' '
+    TableCaptionNode [0-0]
+      TextNode [333-348] 'Prototype table'
