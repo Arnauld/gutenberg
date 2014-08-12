@@ -25,7 +25,6 @@ import java.util.Iterator;
  */
 public class GraphicsRenderer {
 
-    private static final boolean DEBUG_LINES = true;
     private Logger log = LoggerFactory.getLogger(GraphicsRenderer.class);
     private Color backgroundColor = Color.WHITE;
 
@@ -261,7 +260,7 @@ public class GraphicsRenderer {
             g2.drawString(text.getText(), text.getXPos(), text.getYPos());
         }
 
-        if (options.renderDebugLines() || DEBUG_LINES) {
+        if (options.renderDebugLines()) {
             Stroke debugStroke =
                     new BasicStroke(
                             1,
