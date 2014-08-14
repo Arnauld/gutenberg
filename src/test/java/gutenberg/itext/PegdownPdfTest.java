@@ -1,11 +1,14 @@
 package gutenberg.itext;
 
+import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
 import gutenberg.pegdown.plugin.AttributesPlugin;
+import gutenberg.util.VariableResolver;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,10 +29,13 @@ import java.util.List;
 public class PegdownPdfTest {
 
     private String workingDir;
+    private String projectDir;
 
     @Before
     public void setUp() throws IOException, DocumentException {
-        workingDir = new TestSettings().workingDir();
+        TestSettings testSettings = new TestSettings();
+        workingDir = testSettings.workingDir();
+        projectDir = testSettings.projectDir();
     }
 
     @Test
@@ -68,6 +74,23 @@ public class PegdownPdfTest {
     }
 
     @Test
+    public void image_02() throws Exception {
+        process("image_02", "/gutenberg/pegdown/image-02-basedir.md", new Function<InvocationContext, InvocationContext>() {
+            @Override
+            public InvocationContext apply(InvocationContext invocationContext) {
+                VariableResolver variableResolver =
+                        invocationContext
+                                .variableResolver()
+                                .declare("imageDir", "file://" + projectDir + "/doc")
+                                .declare("resourcePathAsDir", "file://" + projectDir + "/src/test/resources")
+                                .declare("resourcePath", "classpath:")
+                        ;
+                return invocationContext.variableResolver(variableResolver);
+            }
+        });
+    }
+
+    @Test
     public void code_01() throws Exception {
         process("code_01", "/gutenberg/pegdown/code-01.md");
     }
@@ -88,6 +111,10 @@ public class PegdownPdfTest {
     }
 
     private void process(String usecase, String resourcePath) throws Exception {
+        process(usecase, resourcePath, Functions.<InvocationContext>identity());
+    }
+
+    private void process(String usecase, String resourcePath, Function<InvocationContext, InvocationContext> customizer) throws Exception {
         ITextContext iTextContext = openDocument(usecase);
         Document document = iTextContext.getDocument();
         String mkd = loadResource(resourcePath).trim();
@@ -99,7 +126,7 @@ public class PegdownPdfTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
-        InvocationContext context = new InvocationContext(iTextContext);
+        InvocationContext context = customizer.apply(new InvocationContext(iTextContext));
 
         List<Element> elements = context.process(0, rootNode);
         for (Element element : elements) {

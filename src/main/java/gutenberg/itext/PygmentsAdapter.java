@@ -11,7 +11,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
-import gutenberg.pegdown.plugin.Attributes;
+import gutenberg.util.Attributes;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.TokenWithValue;
@@ -21,7 +21,6 @@ import gutenberg.util.Style;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static gutenberg.itext.ITextUtils.toColor;
 

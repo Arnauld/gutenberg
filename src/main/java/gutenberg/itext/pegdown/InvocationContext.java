@@ -11,7 +11,7 @@ import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
-import gutenberg.pegdown.plugin.Attributes;
+import gutenberg.util.Attributes;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
@@ -51,10 +51,10 @@ public class InvocationContext {
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
-    private final VariableResolver variableResolver;
+    private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
 
-    public InvocationContext(ITextContext iTextContextSupplier) throws IOException, DocumentException {
+    public InvocationContext(ITextContext iTextContext) throws IOException, DocumentException {
         this.fontAwesome = new FontAwesomeAdapter();
         this.processors = Maps.newHashMap();
         this.processorDefault = new DefaultProcessor();
@@ -73,7 +73,16 @@ public class InvocationContext {
         );
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
 
-        initProcessors(iTextContextSupplier);
+        initProcessors(iTextContext);
+    }
+
+    public VariableResolver variableResolver() {
+        return variableResolver;
+    }
+
+    public InvocationContext variableResolver(VariableResolver variableResolver) {
+        this.variableResolver = variableResolver;
+        return this;
     }
 
     public Font verbatimFont(RGB rgb) {
@@ -220,7 +229,7 @@ public class InvocationContext {
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
 
-        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver));
+        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver, iTextContext));
         processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
         processors.put(AttributesNode.class, new AttributesNodeProcessor());
     }

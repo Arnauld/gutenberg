@@ -1,8 +1,7 @@
 package gutenberg.pegdown.plugin;
 
+import gutenberg.util.Attributes;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

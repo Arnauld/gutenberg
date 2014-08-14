@@ -1,4 +1,4 @@
-package gutenberg.pegdown.plugin;
+package gutenberg.util;
 
 import com.google.common.collect.Maps;
 
@@ -58,5 +58,13 @@ public class Attributes {
             return false;
         else
             return val.equalsIgnoreCase("off") || val.equalsIgnoreCase("no") || val.equalsIgnoreCase("false");
+    }
+
+    public Dimension getDimension(String key) throws DimensionFormatException {
+        String val = map.get(key);
+        if(val != null)
+            return new DimensionParser().parse(val);
+        else
+            return null;
     }
 }

@@ -16,9 +16,9 @@ public class VariableResolverTest {
 
     @Test
     public void simpleCase() {
-        assertThat(resolver.resolve("<m2dir>/repository")).isEqualTo("<m2dir>/repository");
+        assertThat(resolver.resolve("${m2dir}/repository")).isEqualTo("${m2dir}/repository");
 
         resolver.declare("m2dir", "/home/.m2");
-        assertThat(resolver.resolve("<m2dir>/repository")).isEqualTo("/home/.m2/repository");
+        assertThat(resolver.resolve("${m2dir}/repository")).isEqualTo("/home/.m2/repository");
     }
 }

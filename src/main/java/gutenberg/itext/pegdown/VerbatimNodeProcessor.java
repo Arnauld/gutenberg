@@ -2,13 +2,12 @@ package gutenberg.itext.pegdown;
 
 import com.itextpdf.text.Element;
 import gutenberg.itext.PygmentsAdapter;
-import gutenberg.pegdown.plugin.Attributes;
+import gutenberg.util.Attributes;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.VerbatimNode;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>

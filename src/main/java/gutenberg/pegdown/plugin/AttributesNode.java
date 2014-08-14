@@ -1,5 +1,6 @@
 package gutenberg.pegdown.plugin;
 
+import gutenberg.util.Attributes;
 import org.parboiled.common.ImmutableList;
 import org.pegdown.ast.AbstractNode;
 import org.pegdown.ast.Node;

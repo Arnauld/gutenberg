@@ -12,6 +12,7 @@ import com.itextpdf.text.pdf.PdfTemplate;
 import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.ditaa.GraphicsRenderer;
 import gutenberg.itext.ITextContext;
+import gutenberg.itext.ITextUtils;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.util.Strings;
 import org.pegdown.ast.VerbatimNode;
@@ -27,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 
+import static gutenberg.itext.ITextUtils.scaleToFit;
 import static gutenberg.itext.pegdown.Processor.elements;
 import static java.util.Arrays.asList;
 
@@ -93,11 +95,4 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
         return pygments.process(lang, code, context.peekAttributes(level));
     }
 
-    private void scaleToFit(ImgTemplate img, Rectangle box) {
-        float scaleWidth = box.getWidth() / img.getWidth();
-        float scaleHeight = box.getHeight() / img.getHeight();
-        float scale = Math.min(scaleHeight, scaleWidth);
-        if(scale<1)
-            img.scalePercent(scale*100f);
-    }
 }

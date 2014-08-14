@@ -18,7 +18,7 @@ public class VariableResolver {
     public String resolve(String input) {
         String fmt = input;
         for (String key : variables.keySet()) {
-            fmt = fmt.replace("<" + key + ">", variables.get(key));
+            fmt = fmt.replace("${" + key + "}", variables.get(key));
         }
         return fmt;
     }

@@ -4,6 +4,13 @@ import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import gutenberg.itext.ITextContext;
+import gutenberg.itext.ITextUtils;
+import gutenberg.util.Attributes;
+import gutenberg.util.Dimension;
+import gutenberg.util.DimensionFormatException;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.Node;
@@ -23,9 +30,11 @@ public class ExpImageNodeProcessor extends Processor {
     private final Logger log = LoggerFactory.getLogger(ExpImageNodeProcessor.class);
 
     private final VariableResolver variableResolver;
+    private final ITextContext iTextContext;
 
-    public ExpImageNodeProcessor(VariableResolver variableResolver) {
+    public ExpImageNodeProcessor(VariableResolver variableResolver, ITextContext iTextContext) {
         this.variableResolver = variableResolver;
+        this.iTextContext = iTextContext;
     }
 
     @Override
@@ -34,10 +43,33 @@ public class ExpImageNodeProcessor extends Processor {
         String title = imageNode.title;
         String url = variableResolver.resolve(imageNode.url);
 
+        Attributes attributes = context.peekAttributes(level);
+
+        Dimension dim = readWidth(attributes);
+
         try {
-            URL u = new URL(url);
+            URL u;
+            if (url.startsWith("classpath:/")) {
+                String path = url.substring("classpath:/".length());
+                u = ClassLoader.getSystemResource(path);
+            } else {
+                u = new URL(url);
+            }
+
+            log.info("Loading image from URL '{}'", u);
             Image image = Image.getInstance(u);
-            return elements(new Chunk(image, 0, 0, true));
+            image.setAlignment(Image.MIDDLE);
+            ITextUtils.adjustOrScaleToFit(image, dim, iTextContext.getDocumentArtBox());
+
+            Paragraph p = new Paragraph();
+            p.setAlignment(Element.ALIGN_CENTER);
+            p.add(new Chunk(image, 0, 0, true));
+            if (title != null) {
+                p.add(Chunk.NEWLINE);
+                p.add(new Chunk(title));
+            }
+
+            return elements(p);
         } catch (MalformedURLException e) {
             log.error("Failed to open image url '{}'", url, e);
         } catch (IOException e) {
@@ -46,5 +78,14 @@ public class ExpImageNodeProcessor extends Processor {
             log.error("Failed to open image url '{}'", url, e);
         }
         return elements();
+    }
+
+    private Dimension readWidth(Attributes attributes) {
+        try {
+            return attributes.getDimension("width");
+        } catch (DimensionFormatException e) {
+            log.warn("Unreadable width {}", attributes.getString("width"));
+            return null;
+        }
     }
 }
