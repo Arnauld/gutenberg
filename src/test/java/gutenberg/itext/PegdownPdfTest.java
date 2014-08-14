@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.fail;
+
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
@@ -74,8 +76,22 @@ public class PegdownPdfTest {
     }
 
     @Test
-    public void image_02() throws Exception {
-        process("image_02", "/gutenberg/pegdown/image-02-basedir.md", new Function<InvocationContext, InvocationContext>() {
+    public void image_02_base_and_resource_dir() throws Exception {
+        process("image_02_base_dir", "/gutenberg/pegdown/image-02-basedir.md", imagePathAndDirVariableResolver());
+    }
+
+    @Test
+    public void image_03_attributes() throws Exception {
+        process("image_03_attributes", "/gutenberg/pegdown/image-03-attributes.md", imagePathAndDirVariableResolver());
+    }
+
+    @Test
+    public void image_04_references() throws Exception {
+        process("image_04_ref", "/gutenberg/pegdown/image-04-ref.md", imagePathAndDirVariableResolver());
+    }
+
+    private Function<InvocationContext, InvocationContext> imagePathAndDirVariableResolver() {
+        return new Function<InvocationContext, InvocationContext>() {
             @Override
             public InvocationContext apply(InvocationContext invocationContext) {
                 VariableResolver variableResolver =
@@ -83,11 +99,10 @@ public class PegdownPdfTest {
                                 .variableResolver()
                                 .declare("imageDir", "file://" + projectDir + "/doc")
                                 .declare("resourcePathAsDir", "file://" + projectDir + "/src/test/resources")
-                                .declare("resourcePath", "classpath:")
-                        ;
+                                .declare("resourcePath", "classpath:");
                 return invocationContext.variableResolver(variableResolver);
             }
-        });
+        };
     }
 
     @Test
@@ -127,6 +142,10 @@ public class PegdownPdfTest {
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
         InvocationContext context = customizer.apply(new InvocationContext(iTextContext));
+        if (context == null) {
+            fail("No context");
+            return;
+        }
 
         List<Element> elements = context.process(0, rootNode);
         for (Element element : elements) {

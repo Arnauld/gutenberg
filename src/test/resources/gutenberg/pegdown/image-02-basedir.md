@@ -13,9 +13,3 @@
 
 {width:50%}
 ![alt text](${resourcePath}/images/printing-history-gutenberg-press.jpg "Fasano Bedroom")
-
-Reference-style: 
-![alt text][logo]
-
-
-[logo]:[${imageDir}/printing-history-gutenberg-press.jpg]

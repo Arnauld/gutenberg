@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
  */
 public class Attributes {
 
-    private Pattern keyValue = Pattern.compile("([a-zA-Z_\\-]+)" + "\\s*=\\s*" + "(\"[^\"]+\"|[^\",]+)");
+    private static Pattern KEY_VALUE = Pattern.compile("([a-zA-Z_\\-]+)" + "\\s*[=:]\\s*" + "(\"[^\"]+\"|[^\",]+)");
+
     private final Map<String, String> map;
 
     public Attributes() {
@@ -24,7 +25,7 @@ public class Attributes {
     }
 
     public Attributes appendCommaSeparatedKeyValuePairs(String text) {
-        Matcher matcher = keyValue.matcher(text);
+        Matcher matcher = KEY_VALUE.matcher(text);
         while (matcher.find()) {
             String key = matcher.group(1);
             String value = unquote(matcher.group(2));
@@ -62,9 +63,14 @@ public class Attributes {
 
     public Dimension getDimension(String key) throws DimensionFormatException {
         String val = map.get(key);
-        if(val != null)
+        if (val != null)
             return new DimensionParser().parse(val);
         else
             return null;
+    }
+
+    @Override
+    public String toString() {
+        return "Attributes{" + map + '}';
     }
 }

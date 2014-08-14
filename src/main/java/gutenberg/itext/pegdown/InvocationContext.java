@@ -11,12 +11,12 @@ import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
-import gutenberg.util.Attributes;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.Token;
 import gutenberg.pygments.styles.FriendlyStyle;
+import gutenberg.util.Attributes;
 import gutenberg.util.RGB;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
@@ -51,6 +51,7 @@ public class InvocationContext {
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
+    private final Stack<Node> ancestorTree;
     private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
 
@@ -72,6 +73,7 @@ public class InvocationContext {
                 FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
         );
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
+        this.ancestorTree = new Stack<Node>();
 
         initProcessors(iTextContext);
     }
@@ -102,14 +104,46 @@ public class InvocationContext {
         if (processor == null)
             processor = processorDefault;
 
-        dumpProcessor(depth, node, processor);
+        ancestorTree.push(node);
 
+        dumpProcessor(depth, node, processor);
+        copyAncestorAttributesIfRequired(depth, node);
         List<Element> elements = processor.process(depth, node, this);
+
+        ancestorTree.pop();
+
         if (depth == 0) {
             return rebuildChapterSectionTree(elements);
         } else {
             return elements;
         }
+    }
+
+    protected void copyAncestorAttributesIfRequired(int depth, Node node) {
+        if (ancestorTreeMatches(ancestorTree, ExpImageNode.class, SuperNode.class, ParaNode.class)) {
+            Attributes attrs = peekAttributes(depth - 2);
+            if (attrs != null && attributesSeq[depth] == null) {
+                log.debug(indent(depth) + "Attributes copied from ancestor at depth {} to node {}; attributes: {} ", depth, node, attrs);
+                pushAttributes(depth, attrs);
+            }
+            else {
+                log.debug(indent(depth) + "Attributes not copied from ancestor at depth {} to node {}; no attributes to copy or already present at depth ", depth, node);
+            }
+        }
+    }
+
+    public static boolean ancestorTreeMatches(List<Node> ancestorTree, Class<? extends Node>... ancestorTypes) {
+        int len = ancestorTree.size();
+        if (ancestorTypes.length > len)
+            return false;
+
+        for (int i = 0; i < ancestorTypes.length; i++) {
+            Class<? extends Node> ancestor = ancestorTypes[i];
+            Node node = ancestorTree.get(len - 1 - i);
+            if (!ancestor.isInstance(node))
+                return false;
+        }
+        return true;
     }
 
     private List<Element> rebuildChapterSectionTree(List<Element> elements) {
@@ -172,10 +206,12 @@ public class InvocationContext {
     public List<Element> processChildren(int level, Node node) {
         List<Element> subs = Lists.newArrayList();
         for (Node child : node.getChildren()) {
-            // attributes apply on siblings :)
-            Attributes attributes = consumeAttributes(level + 1);
             List<Element> elements = process(level + 1, child);
-            applyAttributes(elements, attributes);
+            // attributes apply on siblings :)
+            if (!(child instanceof AttributesNode)) {
+                Attributes attributes = consumeAttributes(level + 1);
+                applyAttributes(elements, attributes);
+            }
             subs.addAll(elements);
         }
         return subs;
@@ -279,6 +315,7 @@ public class InvocationContext {
 
         fill(attributesSeq, level, attributesSeq.length, null);
         attributesSeq[level] = attributes;
+        log.debug(indent(level) + "Attributes pushed for level {}; attributes: {}", level, attributes);
     }
 
     @SuppressWarnings("unchecked")
@@ -304,6 +341,7 @@ public class InvocationContext {
     @SuppressWarnings("unchecked")
     private Attributes consumeAttributes(int level) {
         Attributes map = peekAttributes(level);
+        log.debug(indent(level) + "consuming attributes for level {}; attributes: {}", level, map);
         if (level < attributesSeq.length)
             fill(attributesSeq, level, attributesSeq.length, null);
         return map;

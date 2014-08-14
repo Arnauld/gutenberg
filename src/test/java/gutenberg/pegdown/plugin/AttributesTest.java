@@ -8,9 +8,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AttributesTest {
 
     @Test
-    public void one_attribute__key_value() {
+    public void one_attribute__key_equal_separator() {
         Attributes map = new Attributes().appendCommaSeparatedKeyValuePairs("icon=automobile");
         assertThat(map.getString("icon")).isEqualTo("automobile");
+    }
+
+    @Test
+    public void one_attribute__key_colon_value() {
+        Attributes map = new Attributes().appendCommaSeparatedKeyValuePairs("width:50%");
+        assertThat(map.getString("width")).isEqualTo("50%");
     }
 
     @Test
