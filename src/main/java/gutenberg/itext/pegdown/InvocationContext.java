@@ -12,6 +12,7 @@ import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
 import gutenberg.pegdown.References;
+import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
@@ -52,7 +53,7 @@ public class InvocationContext {
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
-    private final Stack<Node> ancestorTree;
+    private final TreeNavigation treeNavigation;
     private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
     private References references;
@@ -75,7 +76,7 @@ public class InvocationContext {
                 FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
         );
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
-        this.ancestorTree = new Stack<Node>();
+        this.treeNavigation = new TreeNavigation();
         this.references = new References();
 
 
@@ -116,13 +117,12 @@ public class InvocationContext {
         if (processor == null)
             processor = processorDefault;
 
-        ancestorTree.push(node);
+        treeNavigation.push(node);
 
         dumpProcessor(depth, node, processor);
-        copyAncestorAttributesIfRequired(depth, node);
         List<Element> elements = processor.process(depth, node, this);
 
-        ancestorTree.pop();
+        treeNavigation.pop();
 
         if (depth == 0) {
             return rebuildChapterSectionTree(elements);
@@ -131,31 +131,8 @@ public class InvocationContext {
         }
     }
 
-    protected void copyAncestorAttributesIfRequired(int depth, Node node) {
-        //noinspection unchecked
-        if (ancestorTreeMatches(ancestorTree, ExpImageNode.class, SuperNode.class, ParaNode.class)) {
-            Attributes attrs = peekAttributes(depth - 2);
-            if (attrs != null && attributesSeq[depth] == null) {
-                log.debug(indent(depth) + "Attributes copied from ancestor at depth {} to node {}; attributes: {} ", depth, node, attrs);
-                pushAttributes(depth, attrs);
-            } else {
-                log.debug(indent(depth) + "Attributes not copied from ancestor at depth {} to node {}; no attributes to copy or already present at depth ", depth, node);
-            }
-        }
-    }
-
-    public static boolean ancestorTreeMatches(List<Node> ancestorTree, Class<? extends Node>... ancestorTypes) {
-        int len = ancestorTree.size();
-        if (ancestorTypes.length > len)
-            return false;
-
-        for (int i = 0; i < ancestorTypes.length; i++) {
-            Class<? extends Node> ancestor = ancestorTypes[i];
-            Node node = ancestorTree.get(len - 1 - i);
-            if (!ancestor.isInstance(node))
-                return false;
-        }
-        return true;
+    public TreeNavigation treeNavigation() {
+        return treeNavigation;
     }
 
     private List<Element> rebuildChapterSectionTree(List<Element> elements) {

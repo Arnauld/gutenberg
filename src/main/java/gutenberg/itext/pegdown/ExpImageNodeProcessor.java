@@ -1,19 +1,22 @@
 package gutenberg.itext.pegdown;
 
+import com.google.common.base.Optional;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.ITextUtils;
+import gutenberg.pegdown.TreeNavigation;
+import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.util.Attributes;
 import gutenberg.util.Dimension;
 import gutenberg.util.DimensionFormatException;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.Node;
+import org.pegdown.ast.ParaNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
+import static gutenberg.pegdown.TreeNavigation.firstAncestorOfType;
+import static gutenberg.pegdown.TreeNavigation.ofType;
+import static gutenberg.pegdown.TreeNavigation.siblingBefore;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -43,7 +50,20 @@ public class ExpImageNodeProcessor extends Processor {
         String title = imageNode.title;
         String url = variableResolver.resolve(imageNode.url);
 
-        Attributes attributes = context.peekAttributes(level);
+        TreeNavigation nav = context.treeNavigation();
+        Optional<TreeNavigation> attrNode =
+                firstAncestorOfType(ParaNode.class)
+                        .then(siblingBefore())
+                        .then(ofType(AttributesNode.class))
+                        .query(nav);
+
+        Attributes attributes;
+        if(attrNode.isPresent()) {
+            attributes = attrNode.get().peek(AttributesNode.class).asAttributes();
+        }
+        else {
+            attributes = new Attributes();
+        }
 
         Dimension dim = readWidth(attributes);
 
