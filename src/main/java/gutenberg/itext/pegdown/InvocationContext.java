@@ -11,6 +11,7 @@ import gutenberg.itext.FontAwesomeAdapter;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Sections;
+import gutenberg.pegdown.References;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
@@ -54,6 +55,7 @@ public class InvocationContext {
     private final Stack<Node> ancestorTree;
     private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
+    private References references;
 
     public InvocationContext(ITextContext iTextContext) throws IOException, DocumentException {
         this.fontAwesome = new FontAwesomeAdapter();
@@ -74,8 +76,14 @@ public class InvocationContext {
         );
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
         this.ancestorTree = new Stack<Node>();
+        this.references = new References();
+
 
         initProcessors(iTextContext);
+    }
+
+    public References references() {
+        return references;
     }
 
     public VariableResolver variableResolver() {
@@ -100,6 +108,10 @@ public class InvocationContext {
     }
 
     public List<Element> process(int depth, Node node) {
+        if (depth == 0) {
+            references.traverse(node);
+        }
+
         Processor processor = processors.get(node.getClass());
         if (processor == null)
             processor = processorDefault;
@@ -120,13 +132,13 @@ public class InvocationContext {
     }
 
     protected void copyAncestorAttributesIfRequired(int depth, Node node) {
+        //noinspection unchecked
         if (ancestorTreeMatches(ancestorTree, ExpImageNode.class, SuperNode.class, ParaNode.class)) {
             Attributes attrs = peekAttributes(depth - 2);
             if (attrs != null && attributesSeq[depth] == null) {
                 log.debug(indent(depth) + "Attributes copied from ancestor at depth {} to node {}; attributes: {} ", depth, node, attrs);
                 pushAttributes(depth, attrs);
-            }
-            else {
+            } else {
                 log.debug(indent(depth) + "Attributes not copied from ancestor at depth {} to node {}; no attributes to copy or already present at depth ", depth, node);
             }
         }
