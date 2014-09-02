@@ -226,7 +226,9 @@ public class InvocationContext {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments, new VerbatimDitaaExtension(pygments, iTextContext)));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments,
+                new VerbatimDitaaExtension(pygments, iTextContext),
+                new VerbatimLaTeXMathExtension(pygments, iTextContext)));
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());

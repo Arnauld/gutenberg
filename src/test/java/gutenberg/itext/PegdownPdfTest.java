@@ -125,6 +125,11 @@ public class PegdownPdfTest {
         process("code_04_uml", "/gutenberg/pegdown/code-04-uml.md");
     }
 
+    @Test
+    public void code_05_latex() throws Exception {
+        process("code_05_latex", "/gutenberg/pegdown/code-05-latex-math.md");
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         process(usecase, resourcePath, Functions.<InvocationContext>identity());
     }
