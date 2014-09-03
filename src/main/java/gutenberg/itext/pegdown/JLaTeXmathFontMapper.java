@@ -35,7 +35,7 @@ public class JLaTeXmathFontMapper implements FontMapper {
                 throw new RuntimeException("Font resource not found for font " + fontName);
             }
             return BaseFont.createFont(
-                    font.getName() + ".ttf",
+                    fontName + ".ttf",
                     BaseFont.IDENTITY_H,
                     BaseFont.EMBEDDED,
                     true,
