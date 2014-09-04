@@ -49,7 +49,7 @@ public class InvocationContext {
     private final FontAwesomeAdapter fontAwesome;
     private final StyleSheet styleSheet;
     private final PygmentsAdapter pygments;
-    private final Sections sections;
+    private Sections sections;
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
@@ -79,8 +79,12 @@ public class InvocationContext {
         this.treeNavigation = new TreeNavigation();
         this.references = new References();
 
-
         initProcessors(iTextContext);
+    }
+
+    public InvocationContext useSections(Sections sections) {
+        this.sections = sections;
+        return this;
     }
 
     public References references() {

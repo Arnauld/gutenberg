@@ -57,8 +57,11 @@ public class Sections {
         return sections;
     }
 
-    @VisibleForTesting
-    Section currentSection() {
+    public void leaveSection(int hLevel) {
+        Arrays.fill(sections, hLevel, sections.length, null);
+    }
+
+    public Section currentSection() {
         Section prev = null;
         for (int i = 1; i < sections.length; i++) {
             Section section = sections[i];
