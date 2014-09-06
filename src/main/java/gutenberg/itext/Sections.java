@@ -41,6 +41,9 @@ public class Sections {
     }
 
     public Section newSection(Paragraph sectionTitle, int hLevel) {
+        if(hLevel < 1)
+            throw new IllegalArgumentException("Section hLevel starts at 1 (H1, H2, H3...)");
+
         Arrays.fill(sections, hLevel, sections.length, null);
         if (hLevel == 1) {
             Chapter chapter = new Chapter(sectionTitle, ++chapterCount);
