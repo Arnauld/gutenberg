@@ -34,6 +34,12 @@ public class Sections {
         return font;
     }
 
+    public Section newSection(String title, int hLevel) {
+        Font font = sectionTitlePrimaryFont(hLevel);
+        Paragraph pTitle = new Paragraph(title, font);
+        return newSection(pTitle, hLevel);
+    }
+
     public Section newSection(Paragraph sectionTitle, int hLevel) {
         Arrays.fill(sections, hLevel, sections.length, null);
         if (hLevel == 1) {
@@ -73,4 +79,5 @@ public class Sections {
         }
         return prev;
     }
+
 }
