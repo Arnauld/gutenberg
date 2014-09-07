@@ -26,10 +26,12 @@ import java.util.Arrays;
 public class PygmentsPdfTest {
 
     private String workingDir;
+    private Styles styles;
 
     @Before
     public void setUp() throws IOException, DocumentException {
         workingDir = new TestSettings().workingDir();
+        styles = new Styles().initDefaults();
     }
 
     @Test
@@ -45,8 +47,7 @@ public class PygmentsPdfTest {
 
             PygmentsAdapter pygmentsAdapter = new PygmentsAdapter(
                     new Pygments(),
-                    styleSheet, ITextUtils.inconsolata(),
-                    12.0f);
+                    styleSheet, styles);
 
             for (String[] lang : Arrays.asList(
                     s("clojure", clojureCode()),

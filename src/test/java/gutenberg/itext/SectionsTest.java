@@ -3,15 +3,24 @@ package gutenberg.itext;
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SectionsTest {
 
+    private Styles styles;
+    private Sections sections;
+
+    @Before
+    public void setUp() {
+        styles = new Styles().initDefaults();
+        sections = new Sections(styles);
+    }
+
     @Test
     public void h1_should_be_chapter() {
-        Sections sections = new Sections();
         Section section = sections.newSection(new Paragraph("Introduction"), 1);
 
         assertThat(section).isInstanceOf(Chapter.class);
@@ -21,13 +30,11 @@ public class SectionsTest {
 
     @Test(expected = IllegalStateException.class)
     public void h2_should_require_a_h1_defined_first() {
-        Sections sections = new Sections();
         sections.newSection(new Paragraph("Introduction"), 2);
     }
 
     @Test
     public void h2_should_be_section() {
-        Sections sections = new Sections();
         Section chapter = sections.newSection(new Paragraph("Getting Started"), 1);
         Section section = sections.newSection(new Paragraph("Introduction"), 2);
 
@@ -38,7 +45,6 @@ public class SectionsTest {
 
     @Test
     public void h3_should_be_section() {
-        Sections sections = new Sections();
         Section chapter = sections.newSection(new Paragraph("Organizational Challenges"), 1);
         Section sectionChapter = sections.newSection(new Paragraph("Cultural Challenges"), 2);
         Section section1 = sections.newSection(new Paragraph("Organizational culture"), 3);
@@ -50,7 +56,6 @@ public class SectionsTest {
 
     @Test
     public void new_h3_should_replace_previous_h3() {
-        Sections sections = new Sections();
         Section chapter = sections.newSection(new Paragraph("Organizational Challenges"), 1);
         Section sectionChapter = sections.newSection(new Paragraph("Cultural Challenges"), 2);
         Section section1 = sections.newSection(new Paragraph("Organizational culture"), 3);
@@ -63,7 +68,6 @@ public class SectionsTest {
 
     @Test
     public void new_h2_should_discard_previous_h3() {
-        Sections sections = new Sections();
         Section chapter = sections.newSection(new Paragraph("Organizational Challenges"), 1);
         Section sectionChapter1 = sections.newSection(new Paragraph("Cultural Challenges"), 2);
         Section section1 = sections.newSection(new Paragraph("Organizational culture"), 3);

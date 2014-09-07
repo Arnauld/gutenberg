@@ -30,17 +30,12 @@ import static gutenberg.itext.ITextUtils.toColor;
 public class PygmentsAdapter {
     private final Pygments pygments;
     private final StyleSheet styleSheet;
-    private final BaseFont codeFont;
-    private final float fontSize;
+    private final Styles styles;
 
-    public PygmentsAdapter(Pygments pygments,
-                           StyleSheet styleSheet,
-                           BaseFont codeFont,
-                           float fontSize) {
+    public PygmentsAdapter(Pygments pygments, StyleSheet styleSheet, Styles styles) {
         this.pygments = pygments;
         this.styleSheet = styleSheet;
-        this.codeFont = codeFont;
-        this.fontSize = fontSize;
+        this.styles = styles;
     }
 
     public List<Element> process(String lang, String content, Attributes attributes) {
@@ -54,7 +49,7 @@ public class PygmentsAdapter {
             BaseColor color = toColor(style.fg());
             int s = calculateStyle(style);
 
-            Font font = new Font(codeFont, fontSize, s, color);
+            Font font = styles.getFont(Styles.CODE_FONT, s, color).get();
             Chunk o = new Chunk(token.value, font);
 
             RGB bg = style.bg();

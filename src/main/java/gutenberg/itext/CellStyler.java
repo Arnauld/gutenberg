@@ -1,5 +1,6 @@
 package gutenberg.itext;
 
+import com.google.common.base.Supplier;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.pdf.PdfPCell;
 
@@ -7,14 +8,14 @@ import com.itextpdf.text.pdf.PdfPCell;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class CellStyler {
-    private final Font font;
+    private final Supplier<Font> font;
 
-    public CellStyler(Font font) {
+    public CellStyler(Supplier<Font> font) {
         this.font = font;
     }
 
     public Font cellFont() {
-        return font;
+        return font.get();
     }
 
     public void applyStyle(PdfPCell cell) {

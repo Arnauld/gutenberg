@@ -32,12 +32,14 @@ public class PegdownPdfTest {
 
     private String workingDir;
     private String projectDir;
+    private Styles styles;
 
     @Before
     public void setUp() throws IOException, DocumentException {
         TestSettings testSettings = new TestSettings();
         workingDir = testSettings.workingDir();
         projectDir = testSettings.projectDir();
+        styles = new Styles().initDefaults();
     }
 
     @Test
@@ -146,7 +148,7 @@ public class PegdownPdfTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
-        InvocationContext context = customizer.apply(new InvocationContext(iTextContext));
+        InvocationContext context = customizer.apply(new InvocationContext(iTextContext, styles));
         if (context == null) {
             fail("No context");
             return;

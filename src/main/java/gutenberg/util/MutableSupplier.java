@@ -8,6 +8,10 @@ import com.google.common.base.Supplier;
 public class MutableSupplier<T> implements Supplier<T> {
     private T value;
 
+    public MutableSupplier(T value) {
+        this.value = value;
+    }
+
     public void set(T value) {
         this.value = value;
     }

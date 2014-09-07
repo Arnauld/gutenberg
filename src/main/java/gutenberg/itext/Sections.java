@@ -18,20 +18,14 @@ public class Sections {
     private int chapterCount = 0;
     private Section[] sections = new Section[10];
     private List<Chapter> chapters = Lists.newArrayList();
-    private Font[] primarySectionTitleFonts;
+    private Styles styles;
 
-    public Sections(Font... primarySectionTitleFonts) {
-        this.primarySectionTitleFonts = primarySectionTitleFonts;
+    public Sections(Styles styles) {
+        this.styles = styles;
     }
 
     public Font sectionTitlePrimaryFont(int hLevel) {
-        Font font = null;
-        for (int i = 0; i < Math.min(hLevel, primarySectionTitleFonts.length); i++) {
-            if (primarySectionTitleFonts[i] != null) {
-                font = primarySectionTitleFonts[i];
-            }
-        }
-        return font;
+        return styles.sectionTitleFontForLevel(hLevel);
     }
 
     public Section newSection(String title, int hLevel) {
@@ -49,14 +43,14 @@ public class Sections {
     }
 
     public Section newSection(Paragraph sectionTitle, int hLevel, boolean numbered) {
-        if(hLevel < 1)
+        if (hLevel < 1)
             throw new IllegalArgumentException("Section hLevel starts at 1 (H1, H2, H3...)");
 
         Arrays.fill(sections, hLevel, sections.length, null);
 
         Section section;
         if (hLevel == 1) {
-            if(numbered) // only increase chapter number if the number is used
+            if (numbered) // only increase chapter number if the number is used
                 chapterCount++;
 
             Chapter chapter = new Chapter(sectionTitle, chapterCount);
@@ -72,7 +66,7 @@ public class Sections {
             sections[hLevel] = section;
         }
 
-        if(!numbered)
+        if (!numbered)
             section.setNumberDepth(0);
         return section;
     }
@@ -98,5 +92,4 @@ public class Sections {
         }
         return prev;
     }
-
 }

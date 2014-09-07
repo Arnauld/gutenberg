@@ -3,24 +3,15 @@ package gutenberg.itext.pegdown;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import gutenberg.itext.AlternateTableRowBackground;
-import gutenberg.itext.CellStyler;
-import gutenberg.itext.FontAwesomeAdapter;
-import gutenberg.itext.ITextContext;
-import gutenberg.itext.PygmentsAdapter;
-import gutenberg.itext.Sections;
+import gutenberg.itext.*;
 import gutenberg.pegdown.References;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
-import gutenberg.pygments.Token;
 import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.Attributes;
 import gutenberg.util.MutableSupplier;
-import gutenberg.util.RGB;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
 import org.slf4j.Logger;
@@ -31,9 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import static gutenberg.itext.FontCopier.copyFont;
-import static gutenberg.itext.ITextUtils.inconsolata;
-import static gutenberg.itext.ITextUtils.toColor;
 import static java.util.Arrays.fill;
 
 /**
@@ -41,47 +29,43 @@ import static java.util.Arrays.fill;
  */
 public class InvocationContext {
 
+    private final ITextContext iTextContext;
+    private final Styles styles;
     private Logger log = LoggerFactory.getLogger(InvocationContext.class);
 
-    private final Map<Class<?>, Processor> processors;
     private final Processor processorDefault;
     private final Stack<Font> fontStack;
     private final Stack<TableInfos> tableStack;
     private final FontAwesomeAdapter fontAwesome;
-    private final StyleSheet styleSheet;
     private final PygmentsAdapter pygments;
-    private MutableSupplier<Sections> sectionsSupplier;
-    private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
-    private final Font defaultFont;
     private final TreeNavigation treeNavigation;
+    // ---
+    private Map<Class<?>, Processor> processors;
     private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
     private References references;
+    private MutableSupplier<Sections> sectionsSupplier;
 
-    public InvocationContext(ITextContext iTextContext) throws IOException, DocumentException {
+    public InvocationContext(ITextContext iTextContext, Styles styles) throws IOException, DocumentException {
+        this(iTextContext, styles, new FriendlyStyle());
+    }
+
+    public InvocationContext(ITextContext iTextContext, Styles styles, StyleSheet styleSheet) throws IOException, DocumentException {
+        this.iTextContext = iTextContext;
+        this.styles = styles;
+        // ---
         this.fontAwesome = new FontAwesomeAdapter();
-        this.processors = Maps.newHashMap();
         this.processorDefault = new DefaultProcessor();
-        this.defaultFont = FontFactory.getFont(FontFactory.HELVETICA, 12.0f, Font.NORMAL);
         this.fontStack = new Stack<Font>();
-        this.fontStack.push(defaultFont);
+        this.fontStack.push(styles.defaultFont());
         this.tableStack = new Stack<TableInfos>();
-        this.styleSheet = new FriendlyStyle();
-        this.verbatimFont = inconsolata();
         this.cellStylerStack = new Stack<CellStyler>();
-        this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
-        this.sectionsSupplier = new MutableSupplier<Sections>();
-        useSections(new Sections(
-                FontFactory.getFont(FontFactory.HELVETICA, 18.0f, Font.BOLD, BaseColor.BLACK),
-                FontFactory.getFont(FontFactory.HELVETICA, 16.0f, Font.BOLD, BaseColor.DARK_GRAY),
-                FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
-        ));
+        this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, styles);
+        this.sectionsSupplier = new MutableSupplier<Sections>(new Sections(styles));
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
         this.treeNavigation = new TreeNavigation();
         this.references = new References();
-
-        initProcessors(iTextContext);
     }
 
     public InvocationContext useSections(Sections sections) {
@@ -102,14 +86,6 @@ public class InvocationContext {
         return this;
     }
 
-    public Font verbatimFont(RGB rgb) {
-        return verbatimFont(toColor(rgb));
-    }
-
-    private Font verbatimFont(BaseColor color) {
-        return new Font(verbatimFont, 12, Font.NORMAL, color);
-    }
-
     public Chunk symbol(String symbol, float size, BaseColor color) {
         return fontAwesome.symbol(symbol, size, color);
     }
@@ -119,7 +95,7 @@ public class InvocationContext {
             references.traverse(node);
         }
 
-        Processor processor = processors.get(node.getClass());
+        Processor processor = processors().get(node.getClass());
         if (processor == null)
             processor = processorDefault;
 
@@ -135,6 +111,14 @@ public class InvocationContext {
         } else {
             return elements;
         }
+    }
+
+    private Map<Class<?>, Processor> processors() {
+        if (processors == null) {
+            processors = Maps.newHashMap();
+            initProcessors(iTextContext, styles);
+        }
+        return processors;
     }
 
     public TreeNavigation treeNavigation() {
@@ -228,7 +212,7 @@ public class InvocationContext {
         }
     }
 
-    protected void initProcessors(ITextContext iTextContext) {
+    protected void initProcessors(ITextContext iTextContext, final Styles styles) {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
         processors.put(ParaNode.class, new ParaNodeProcessor());
@@ -241,27 +225,15 @@ public class InvocationContext {
         processors.put(BulletListNode.class, new BulletListNodeProcessor());
         processors.put(ListItemNode.class, new ListItemNodeProcessor());
         processors.put(HeaderNode.class, new HeaderNodeProcessor(sectionsSupplier));
-        processors.put(CodeNode.class, new CodeNodeProcessor(
-                verbatimFont(styleSheet.foregroundOf(Token.Text)),
-                toColor(styleSheet.backgroundColor())
-        ));
+        processors.put(CodeNode.class, new CodeNodeProcessor(styles));
         processors.put(StrongEmphSuperNode.class, new StrongEmphSuperNodeProcessor());
         processors.put(StrikeNode.class, new StrikeNodeProcessor());
         processors.put(SuperNode.class, new SuperNodeProcessor());
-
-        BaseColor veryLightGray = new BaseColor(230, 230, 230);
-        processors.put(TableNode.class, new TableNodeProcessor(new AlternateTableRowBackground(veryLightGray)));
-        Font headerFont = copyFont(defaultFont).bold().color(BaseColor.WHITE).get();
-        processors.put(TableHeaderNode.class, new TableHeaderNodeProcessor(new CellStyler(headerFont) {
-            @Override
-            public void applyStyle(PdfPCell cell) {
-                cell.setBackgroundColor(BaseColor.BLACK);
-            }
-        }));
-        processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new CellStyler(defaultFont)));
+        processors.put(TableNode.class, new TableNodeProcessor(new AlternateTableRowBackground(styles)));
+        processors.put(TableHeaderNode.class, new TableHeaderNodeProcessor(new DefaultHeaderCellStyler(styles)));
+        processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new DefaultBodyCellStyler(styles)));
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
-
         processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver, iTextContext));
         processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
         processors.put(AttributesNode.class, new AttributesNodeProcessor());

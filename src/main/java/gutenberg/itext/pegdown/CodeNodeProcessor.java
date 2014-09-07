@@ -1,9 +1,13 @@
 package gutenberg.itext.pegdown;
 
+import com.google.common.base.Supplier;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import gutenberg.itext.ITextUtils;
+import gutenberg.itext.Styles;
 import org.pegdown.ast.CodeNode;
 import org.pegdown.ast.Node;
 
@@ -14,20 +18,34 @@ import java.util.List;
  */
 public class CodeNodeProcessor extends Processor {
 
-    private final Font codeFont;
-    private final BaseColor codeBackground;
+    private final Styles styles;
 
-    public CodeNodeProcessor(Font codeFont, BaseColor codeBackground) {
-        this.codeFont = codeFont;
-        this.codeBackground = codeBackground;
+    public CodeNodeProcessor(Styles styles) {
+        this.styles = styles;
     }
 
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {
         CodeNode cNode = (CodeNode) node;
-        Chunk chunk = new Chunk(cNode.getText(), codeFont);
-        chunk.setBackground(codeBackground);
+
+        Font font = styles.getFont(Styles.INLINE_CODE_FONT).or(inlineCodeFont(styles));
+        Chunk chunk = new Chunk(cNode.getText(), font);
+        chunk.setBackground(styles.getColor(Styles.INLINE_CODE_BACKGROUND).or(BaseColor.GRAY));
         chunk.setGenericTag("code");
         return elements(chunk);
+    }
+
+    private Supplier<? extends Font> inlineCodeFont(final Styles styles) {
+        return new Supplier<Font>() {
+            @Override
+            public Font get() {
+                try {
+                    return new Font(ITextUtils.inconsolata(), styles.defaultFontSize());
+                } catch (Exception e) {
+                    log.warn("Fail to retrieve font", e);
+                    return FontFactory.getFont(FontFactory.COURIER, styles.defaultFontSize());
+                }
+            }
+        };
     }
 }
