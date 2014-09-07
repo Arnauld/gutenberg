@@ -8,6 +8,8 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import gutenberg.itext.FontCopier;
+import gutenberg.itext.Styles;
 import org.pegdown.ast.Node;
 
 import java.util.List;
@@ -17,10 +19,19 @@ import java.util.List;
  */
 public class BlockQuoteNodeProcessor extends Processor {
 
+    private final Styles styles;
+
+    public BlockQuoteNodeProcessor(Styles styles) {
+        this.styles = styles;
+    }
+
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {
         Font font = context.peekFont();
-        context.pushFont(new Font(font.getBaseFont(), font.getSize(), font.getStyle() | Font.ITALIC, BaseColor.LIGHT_GRAY));
+
+        BaseColor color = styles.getColor(Styles.BLOCKQUOTE_COLOR).or(BaseColor.LIGHT_GRAY);
+
+        context.pushFont(new FontCopier(font).italic().color(color).get());
         List<Element> subs = context.processChildren(level, node);
         context.popFont();
 
@@ -32,12 +43,12 @@ public class BlockQuoteNodeProcessor extends Processor {
         cell.setBorder(Rectangle.NO_BORDER);
 
         PdfPCell cellSymbol = new PdfPCell(
-                new Phrase(context.symbol("quote-left", 24, BaseColor.LIGHT_GRAY))
+                new Phrase(context.symbol("quote-left", 24, color))
         );
         cellSymbol.setVerticalAlignment(Element.ALIGN_TOP);
         cellSymbol.setBorder(Rectangle.NO_BORDER);
         cellSymbol.setBorderWidthRight(1.0f);
-        cellSymbol.setBorderColorRight(BaseColor.LIGHT_GRAY);
+        cellSymbol.setBorderColorRight(color);
         cellSymbol.setPaddingTop(0f);
         cellSymbol.setPaddingBottom(5f);
         cellSymbol.setPaddingLeft(10f);

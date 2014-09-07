@@ -36,18 +36,21 @@ public class Styles {
     public static final String TABLE_HEADER_FONT = "table-header-font";
     public static final String TABLE_HEADER_BACKGROUD = "table-header-background";
     public static final String TABLE_BODY_FONT = "table-body-font";
+    //
+    public static final String BLOCKQUOTE_COLOR = "blockquote-color";
 
     private Map<Object, FontDescriptor> registeredFonts = Maps.newConcurrentMap();
     private Map<Object, BaseColor> registeredColors = Maps.newConcurrentMap();
 
     public Styles initDefaults() {
-        registeredColors.put(DEFAULT_COLOR, BaseColor.BLACK);
         FontDescriptor defaultFont = fontDescriptor(defaultFontName(), defaultFontSize(), Font.NORMAL, BaseColor.BLACK);
+
+        registeredColors.put(DEFAULT_COLOR, BaseColor.BLACK);
         registeredFonts.put(DEFAULT_FONT, defaultFont);
 
         registeredFonts.put(CODE_FONT, fontDescriptor(verbatimBaseFont(), defaultFontSize(), Font.NORMAL, BaseColor.BLACK));
         registeredFonts.put(INLINE_CODE_FONT, fontDescriptor(verbatimBaseFont(), defaultFontSize(), Font.NORMAL, BaseColor.BLACK));
-        registeredColors.put(INLINE_CODE_BACKGROUND, Colors.LIGHT_GRAY);
+        registeredColors.put(INLINE_CODE_BACKGROUND, Colors.VERY2_LIGHT_GRAY);
 
         registeredFonts.put(H1_FONT, fontDescriptor(defaultFontName(), 18.0f, Font.BOLD, BaseColor.BLACK));
         registeredFonts.put(H2_FONT, fontDescriptor(defaultFontName(), 16.0f, Font.BOLD, BaseColor.DARK_GRAY));
@@ -58,6 +61,8 @@ public class Styles {
         registeredFonts.put(TABLE_HEADER_FONT, fontDescriptor(defaultFontName(), 14.0f, Font.ITALIC, BaseColor.WHITE));
         registeredColors.put(TABLE_HEADER_BACKGROUD, BaseColor.BLACK);
         registeredFonts.put(TABLE_BODY_FONT, defaultFont);
+
+        registeredColors.put(BLOCKQUOTE_COLOR, Colors.LIGHT_GRAY);
 
         return this;
     }
@@ -77,7 +82,7 @@ public class Styles {
     }
 
     public float defaultFontSize() {
-        return 12.0f;
+        return 10.0f;
     }
 
     protected String defaultFontName() {

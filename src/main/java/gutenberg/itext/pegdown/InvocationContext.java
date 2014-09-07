@@ -214,7 +214,7 @@ public class InvocationContext {
 
     protected void initProcessors(ITextContext iTextContext, final Styles styles) {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
-        processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor());
+        processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor(styles));
         processors.put(ParaNode.class, new ParaNodeProcessor());
         processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments,
                 new VerbatimDitaaExtension(pygments, iTextContext),
