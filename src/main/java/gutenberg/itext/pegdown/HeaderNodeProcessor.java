@@ -1,5 +1,6 @@
 package gutenberg.itext.pegdown;
 
+import com.google.common.base.Supplier;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
@@ -14,16 +15,18 @@ import java.util.List;
  */
 public class HeaderNodeProcessor extends Processor {
 
-    private final Sections sections;
+    private final Supplier<Sections> sectionsSupplier;
 
-    public HeaderNodeProcessor(Sections sections) {
-        this.sections = sections;
+    public HeaderNodeProcessor(Supplier<Sections> sectionsSupplier) {
+        this.sectionsSupplier = sectionsSupplier;
     }
 
     @Override
     public List<Element> process(int level, Node node, InvocationContext context) {
         HeaderNode hNode = (HeaderNode) node;
         int hLevel = hNode.getLevel();
+
+        Sections sections = sectionsSupplier.get();
 
         Font font = sections.sectionTitlePrimaryFont(hLevel);
         context.pushFont(font);

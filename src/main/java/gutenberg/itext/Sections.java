@@ -35,30 +35,46 @@ public class Sections {
     }
 
     public Section newSection(String title, int hLevel) {
+        return newSection(title, hLevel, true);
+    }
+
+    public Section newSection(String title, int hLevel, boolean numbered) {
         Font font = sectionTitlePrimaryFont(hLevel);
         Paragraph pTitle = new Paragraph(title, font);
-        return newSection(pTitle, hLevel);
+        return newSection(pTitle, hLevel, numbered);
     }
 
     public Section newSection(Paragraph sectionTitle, int hLevel) {
+        return newSection(sectionTitle, hLevel, true);
+    }
+
+    public Section newSection(Paragraph sectionTitle, int hLevel, boolean numbered) {
         if(hLevel < 1)
             throw new IllegalArgumentException("Section hLevel starts at 1 (H1, H2, H3...)");
 
         Arrays.fill(sections, hLevel, sections.length, null);
+
+        Section section;
         if (hLevel == 1) {
-            Chapter chapter = new Chapter(sectionTitle, ++chapterCount);
+            if(numbered) // only increase chapter number if the number is used
+                chapterCount++;
+
+            Chapter chapter = new Chapter(sectionTitle, chapterCount);
             sections[hLevel] = chapter;
             chapters.add(chapter);
-            return chapter;
+            section = chapter;
         } else {
             Section parent = sections[hLevel - 1];
             if (parent == null) {
                 throw new IllegalStateException("No parent section (depth H" + (hLevel - 1) + ") found");
             }
-            Section section = parent.addSection(10.0f, sectionTitle);
+            section = parent.addSection(10.0f, sectionTitle);
             sections[hLevel] = section;
-            return section;
         }
+
+        if(!numbered)
+            section.setNumberDepth(0);
+        return section;
     }
 
     @VisibleForTesting

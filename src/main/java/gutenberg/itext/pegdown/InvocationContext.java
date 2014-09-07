@@ -19,6 +19,7 @@ import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.Token;
 import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.Attributes;
+import gutenberg.util.MutableSupplier;
 import gutenberg.util.RGB;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
@@ -49,7 +50,7 @@ public class InvocationContext {
     private final FontAwesomeAdapter fontAwesome;
     private final StyleSheet styleSheet;
     private final PygmentsAdapter pygments;
-    private Sections sections;
+    private MutableSupplier<Sections> sectionsSupplier;
     private final BaseFont verbatimFont;
     private final Stack<CellStyler> cellStylerStack;
     private final Font defaultFont;
@@ -70,11 +71,12 @@ public class InvocationContext {
         this.verbatimFont = inconsolata();
         this.cellStylerStack = new Stack<CellStyler>();
         this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, verbatimFont, 10.0f);
-        this.sections = new Sections(
+        this.sectionsSupplier = new MutableSupplier<Sections>();
+        useSections(new Sections(
                 FontFactory.getFont(FontFactory.HELVETICA, 18.0f, Font.BOLD, BaseColor.BLACK),
                 FontFactory.getFont(FontFactory.HELVETICA, 16.0f, Font.BOLD, BaseColor.DARK_GRAY),
                 FontFactory.getFont(FontFactory.HELVETICA, 14.0f, Font.BOLD, BaseColor.DARK_GRAY)
-        );
+        ));
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
         this.treeNavigation = new TreeNavigation();
         this.references = new References();
@@ -83,7 +85,7 @@ public class InvocationContext {
     }
 
     public InvocationContext useSections(Sections sections) {
-        this.sections = sections;
+        this.sectionsSupplier.set(sections);
         return this;
     }
 
@@ -238,7 +240,7 @@ public class InvocationContext {
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
         processors.put(BulletListNode.class, new BulletListNodeProcessor());
         processors.put(ListItemNode.class, new ListItemNodeProcessor());
-        processors.put(HeaderNode.class, new HeaderNodeProcessor(sections));
+        processors.put(HeaderNode.class, new HeaderNodeProcessor(sectionsSupplier));
         processors.put(CodeNode.class, new CodeNodeProcessor(
                 verbatimFont(styleSheet.foregroundOf(Token.Text)),
                 toColor(styleSheet.backgroundColor())
