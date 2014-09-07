@@ -77,6 +77,10 @@ public class Styles {
         }
     }
 
+    public BaseColor defaultColor() {
+        return getColor(DEFAULT_COLOR).or(BaseColor.BLACK);
+    }
+
     public Font defaultFont() {
         return FontFactory.getFont(defaultFontName(), defaultFontSize(), Font.NORMAL);
     }
@@ -116,10 +120,6 @@ public class Styles {
             return Optional.of(fontDescriptor.font(style, color));
     }
 
-    public BaseColor defaultColor() {
-        return getColor(DEFAULT_COLOR).or(BaseColor.BLACK);
-    }
-
     public Optional<BaseColor> getColor(Object key) {
         BaseColor color = registeredColors.get(key);
         if (color == null)
@@ -127,4 +127,29 @@ public class Styles {
         else
             return Optional.of(color);
     }
+
+    public Font getFontOrDefault(Object key) {
+        Optional<Font> fontOpt = getFont(key);
+        if (fontOpt.isPresent())
+            return fontOpt.get();
+        else
+            return defaultFont();
+    }
+
+    public Font getFontOrDefault(Object key, int style, BaseColor color) {
+        Optional<Font> fontOpt = getFont(key, style, color);
+        if (fontOpt.isPresent())
+            return fontOpt.get();
+        else
+            return new FontCopier(defaultFont()).style(style).color(color).get();
+    }
+
+    public void registerColor(Object key, BaseColor color) {
+        registeredColors.put(key, color);
+    }
+
+    public void registerFont(Object key, Font font) {
+        registeredFonts.put(key, fontDescriptor(font));
+    }
+
 }
