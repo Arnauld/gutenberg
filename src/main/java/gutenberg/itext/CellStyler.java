@@ -18,6 +18,7 @@ public class CellStyler {
         return font.get();
     }
 
-    public void applyStyle(PdfPCell cell) {
+    public PdfPCell applyStyle(PdfPCell cell) {
+        return cell;
     }
 }

@@ -16,8 +16,9 @@ public class DefaultHeaderCellStyler extends CellStyler {
     }
 
     @Override
-    public void applyStyle(PdfPCell cell) {
+    public PdfPCell applyStyle(PdfPCell cell) {
         cell.setBackgroundColor(styles.getColor(Styles.TABLE_HEADER_BACKGROUD).get());
+        return cell;
     }
 
     @Override

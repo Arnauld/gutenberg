@@ -1,5 +1,6 @@
 package gutenberg.itext;
 
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.pdf.PdfPCell;
 
@@ -12,6 +13,12 @@ public class DefaultBodyCellStyler extends CellStyler {
     public DefaultBodyCellStyler(Styles styles) {
         super(null);
         this.styles = styles;
+    }
+
+    @Override
+    public PdfPCell applyStyle(PdfPCell cell) {
+        cell.setBorderColor(styles.getColor(Styles.TABLE_BODY_CELL_BORDER_COLOR).or(BaseColor.BLACK));
+        return cell;
     }
 
     @Override

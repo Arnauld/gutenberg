@@ -36,6 +36,7 @@ public class Styles {
     public static final String TABLE_HEADER_FONT = "table-header-font";
     public static final String TABLE_HEADER_BACKGROUD = "table-header-background";
     public static final String TABLE_BODY_FONT = "table-body-font";
+    public static final String TABLE_BODY_CELL_BORDER_COLOR = "table-body-cell-border";
     //
     public static final String BLOCKQUOTE_COLOR = "blockquote-color";
 
@@ -61,6 +62,7 @@ public class Styles {
         registeredFonts.put(TABLE_HEADER_FONT, fontDescriptor(defaultFontName(), 14.0f, Font.ITALIC, BaseColor.WHITE));
         registeredColors.put(TABLE_HEADER_BACKGROUD, BaseColor.BLACK);
         registeredFonts.put(TABLE_BODY_FONT, defaultFont);
+        registeredColors.put(TABLE_BODY_CELL_BORDER_COLOR, Colors.LIGHT_GRAY);
 
         registeredColors.put(BLOCKQUOTE_COLOR, Colors.LIGHT_GRAY);
 
