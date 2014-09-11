@@ -1,8 +1,7 @@
-package gutenberg.itext.pegdown;
+package gutenberg.itext.emitter;
 
 import com.itextpdf.awt.PdfGraphics2D;
 import com.itextpdf.text.BadElementException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.ImgTemplate;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfTemplate;
@@ -10,8 +9,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.ditaa.GraphicsRenderer;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
+import gutenberg.itext.model.SourceCode;
 import gutenberg.util.Strings;
-import org.pegdown.ast.VerbatimNode;
+import gutenberg.util.WrappedRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.stathissideris.ascii2image.core.ConversionOptions;
@@ -20,33 +20,30 @@ import org.stathissideris.ascii2image.text.TextGrid;
 
 import java.awt.Graphics2D;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import static gutenberg.itext.ITextUtils.scaleToFit;
-import static gutenberg.itext.pegdown.Processor.elements;
 import static java.util.Arrays.asList;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class VerbatimDitaaExtension implements VerbatimExtension {
-
-    private final Logger log = LoggerFactory.getLogger(VerbatimDitaaExtension.class);
+public class SourceCodeDitaaExtension implements SourceCodeEmitterExtension {
+    private final Logger log = LoggerFactory.getLogger(SourceCodeDitaaExtension.class);
     private final PygmentsAdapter pygments;
-    private final ITextContext iTextContext;
 
-    public VerbatimDitaaExtension(PygmentsAdapter pygments, ITextContext iTextContext) {
+    public SourceCodeDitaaExtension(PygmentsAdapter pygments) {
         this.pygments = pygments;
-        this.iTextContext = iTextContext;
     }
 
+    @Override
     public boolean accepts(String lang) {
         return asList("ditaa").contains(lang.toLowerCase());
     }
 
-    public List<Element> process(int level, VerbatimNode vNode, InvocationContext context) {
-        String lang = vNode.getType();
-        String code = vNode.getText();
+    @Override
+    public void emit(SourceCode sourceCode, ITextContext context) {
+        String lang = sourceCode.lang();
+        String code = sourceCode.content();
 
         try {
             String trimmed = Strings.unindentBlock(code);
@@ -61,7 +58,7 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
             log.debug("Diagram creation");
             Diagram diagram = new Diagram(grid, options);
 
-            PdfWriter pdfWriter = iTextContext.getPdfWriter();
+            PdfWriter pdfWriter = context.getPdfWriter();
             PdfContentByte cb = pdfWriter.getDirectContent();
             float width = (float) diagram.getWidth();
             float height = (float) diagram.getHeight();
@@ -76,17 +73,13 @@ public class VerbatimDitaaExtension implements VerbatimExtension {
 
             log.debug("Rendering diagram done");
             ImgTemplate imgTemplate = new ImgTemplate(template);
-            scaleToFit(imgTemplate, iTextContext.getDocumentArtBox());
-            return elements(imgTemplate);
+            scaleToFit(imgTemplate, context.getDocumentArtBox());
+            context.append(imgTemplate);
 
         } catch (UnsupportedEncodingException e) {
-            log.error("Oops", e);
+            throw new WrappedRuntimeException(e);
         } catch (BadElementException e) {
-            log.error("Oops", e);
+            throw new WrappedRuntimeException(e);
         }
-
-        // error case: fallback on raw verbatim rendering
-        return pygments.process(lang, code, context.peekAttributes(level));
     }
-
 }

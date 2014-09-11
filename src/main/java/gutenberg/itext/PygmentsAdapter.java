@@ -11,6 +11,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
+import gutenberg.itext.model.SourceCode;
 import gutenberg.util.Attributes;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
@@ -38,8 +39,10 @@ public class PygmentsAdapter {
         this.styles = styles;
     }
 
-    public List<Element> process(String lang, String content, Attributes attributes) {
-        boolean linenos = attributes.isOn("linenos");
+    public List<Element> process(SourceCode sourceCode) {
+        String lang = sourceCode.lang();
+        String content = sourceCode.content();
+        boolean linenos = sourceCode.showLineNumbers();
 
         Tokens tokens = pygments.tokenize(lang, content);
         Paragraph p = new Paragraph();
