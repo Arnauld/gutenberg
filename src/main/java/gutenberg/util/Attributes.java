@@ -13,13 +13,13 @@ public class Attributes {
 
     private static Pattern KEY_VALUE = Pattern.compile("([a-zA-Z_\\-]+)" + "\\s*[=:]\\s*" + "(\"[^\"]+\"|[^\",]+)");
 
-    private final Map<String, String> map;
+    private final Map<String, Object> map;
 
     public Attributes() {
         this.map = Maps.newHashMap();
     }
 
-    public Attributes declare(String key, String value) {
+    public Attributes declare(String key, Object value) {
         map.put(key.toLowerCase(), value);
         return this;
     }
@@ -42,11 +42,11 @@ public class Attributes {
     }
 
     public String getString(String key) {
-        return map.get(key);
+        return (String) map.get(key);
     }
 
     public boolean isOn(String key) {
-        String val = map.get(key);
+        String val = getString(key);
         if (val == null)
             return false;
         else
@@ -54,7 +54,7 @@ public class Attributes {
     }
 
     public boolean isOff(String key) {
-        String val = map.get(key);
+        String val = getString(key);
         if (val == null)
             return false;
         else
@@ -62,11 +62,13 @@ public class Attributes {
     }
 
     public Dimension getDimension(String key) throws DimensionFormatException {
-        String val = map.get(key);
-        if (val != null)
-            return new DimensionParser().parse(val);
-        else
+        Object val = map.get(key);
+        if (val == null)
             return null;
+        else if (val instanceof String)
+            return new DimensionParser().parse((String)val);
+        else
+            return (Dimension) val;
     }
 
     @Override
