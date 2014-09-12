@@ -5,7 +5,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import gutenberg.TestSettings;
-import gutenberg.util.Attributes;
+import gutenberg.itext.model.SourceCode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.styles.DefaultStyle;
@@ -58,7 +58,7 @@ public class PygmentsPdfTest {
                 Paragraph stylePara = new Paragraph(
                         "Style: " + styleSheet.getClass().getSimpleName() + ", lang: " + lang[0]);
                 document.add(stylePara);
-                for (Element element : pygmentsAdapter.process(lang[0], lang[1], new Attributes())) {
+                for (Element element : pygmentsAdapter.process(new SourceCode(lang[0], lang[1]))) {
                     document.add(element);
                 }
             }
@@ -158,7 +158,7 @@ public class PygmentsPdfTest {
 
     private ITextContext openDocument(String method) throws FileNotFoundException, DocumentException {
         File file = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
-        return new ITextContext().open(file);
+        return new ITextContext(new Sections(styles), styles).open(file);
     }
 
 }

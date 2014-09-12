@@ -7,7 +7,9 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
+import gutenberg.itext.support.ITextContextBuilder;
 import gutenberg.pegdown.plugin.AttributesPlugin;
+import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.VariableResolver;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -163,7 +165,11 @@ public class PegdownPdfTest {
 
     private ITextContext openDocument(String method) throws FileNotFoundException, DocumentException {
         File file = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
-        return new ITextContext().open(file);
+        return new ITextContextBuilder()
+                .usingPygmentsStyleSheet(new FriendlyStyle())
+                .usingStyles(styles)
+                .build()
+                .open(file);
     }
 
     protected String loadResource(String resourceName) throws IOException {

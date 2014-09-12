@@ -7,9 +7,6 @@ import gutenberg.itext.*;
 import gutenberg.pegdown.References;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
-import gutenberg.pygments.Pygments;
-import gutenberg.pygments.StyleSheet;
-import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.util.Attributes;
 import gutenberg.util.MutableSupplier;
 import gutenberg.util.VariableResolver;
@@ -37,7 +34,6 @@ public class InvocationContext {
     private final Stack<Font> fontStack;
     private final Stack<TableInfos> tableStack;
     private final FontAwesomeAdapter fontAwesome;
-    private final PygmentsAdapter pygments;
     private final Stack<CellStyler> cellStylerStack;
     private final TreeNavigation treeNavigation;
     // ---
@@ -48,10 +44,6 @@ public class InvocationContext {
     private MutableSupplier<Sections> sectionsSupplier;
 
     public InvocationContext(ITextContext iTextContext, Styles styles) throws IOException, DocumentException {
-        this(iTextContext, styles, new FriendlyStyle());
-    }
-
-    public InvocationContext(ITextContext iTextContext, Styles styles, StyleSheet styleSheet) throws IOException, DocumentException {
         this.iTextContext = iTextContext;
         this.styles = styles;
         // ---
@@ -61,7 +53,7 @@ public class InvocationContext {
         this.fontStack.push(styles.defaultFont());
         this.tableStack = new Stack<TableInfos>();
         this.cellStylerStack = new Stack<CellStyler>();
-        this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, styles);
+        //this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, styles);
         this.sectionsSupplier = new MutableSupplier<Sections>(new Sections(styles));
         this.variableResolver = new VariableResolver().declare("image-dir", "/");
         this.treeNavigation = new TreeNavigation();
@@ -71,6 +63,10 @@ public class InvocationContext {
     public InvocationContext useSections(Sections sections) {
         this.sectionsSupplier.set(sections);
         return this;
+    }
+
+    public ITextContext iTextContext() {
+        return iTextContext;
     }
 
     public References references() {
@@ -216,9 +212,7 @@ public class InvocationContext {
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor(styles));
         processors.put(ParaNode.class, new ParaNodeProcessor());
-        processors.put(VerbatimNode.class, new VerbatimNodeProcessor(pygments,
-                new VerbatimDitaaExtension(pygments, iTextContext),
-                new VerbatimLaTeXMathExtension(pygments, iTextContext)));
+        processors.put(VerbatimNode.class, new VerbatimNodeProcessor());
         processors.put(TextNode.class, new TextNodeProcessor());
         processors.put(SpecialTextNode.class, new SpecialTextNodeProcessor());
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
