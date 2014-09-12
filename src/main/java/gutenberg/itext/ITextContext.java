@@ -30,18 +30,22 @@ public class ITextContext {
     //
     private Document document;
     private File fileOut;
-    private OutputStream outStream;
     private PdfWriter pdfWriter;
     //
     private final Sections sections;
     private final Styles styles;
     //
+    private final Map<Object, Object> context = Maps.newHashMap();
     private final Stack<Consumer<Element>> consumers = New.newStack();
-    private final Map<Object, Emitter> registered = Maps.newConcurrentMap();
+    private final Map<Object, Emitter> registeredEmitters = Maps.newConcurrentMap();
 
     public ITextContext(Sections sections, Styles styles) {
         this.sections = sections;
         this.styles = styles;
+    }
+
+    public Styles styles() {
+        return styles;
     }
 
     public Document getDocument() {
@@ -55,7 +59,7 @@ public class ITextContext {
     public ITextContext open(File fileOut) throws FileNotFoundException, DocumentException {
         this.document = createDocument();
         this.fileOut = fileOut;
-        this.outStream = new FileOutputStream(fileOut);
+        OutputStream outStream = new FileOutputStream(fileOut);
         this.pdfWriter = PdfWriter.getInstance(document, outStream);
         this.pdfWriter.setBoxSize("art", getDocumentArtBox());
         //
@@ -90,7 +94,7 @@ public class ITextContext {
 
     @SuppressWarnings("unchecked")
     public <T> Emitter<T> emitterFor(Class<T> type) {
-        Emitter emitter = registered.get(type);
+        Emitter emitter = registeredEmitters.get(type);
         if (emitter == null)
             throw new IllegalArgumentException("No emitter registered for type '" + type + "'");
         return emitter;
@@ -144,7 +148,7 @@ public class ITextContext {
         }
 
         Class klazz = value.getClass();
-        for (Map.Entry<Object, Emitter> entry : registered.entrySet()) {
+        for (Map.Entry<Object, Emitter> entry : registeredEmitters.entrySet()) {
             if (entry.getKey() instanceof Class) {
                 Class supportedType = (Class) entry.getKey();
                 if (supportedType.isAssignableFrom(klazz)) {
@@ -158,7 +162,7 @@ public class ITextContext {
     }
 
     public <T> void register(Class<T> type, Emitter<? super T> emitter) {
-        registered.put(type, emitter);
+        registeredEmitters.put(type, emitter);
     }
 
     public void pushElementConsumer(Consumer<Element> consumer) {
@@ -179,5 +183,22 @@ public class ITextContext {
         }
         return elementCollector.getCollected();
 
+    }
+
+    /**
+     * Generic placeholder to store a value.
+     */
+    public void declare(Object key, Object value) {
+        context.put(key, value);
+    }
+
+    /**
+     * Retrieve the value declared for the key.
+     *
+     * @see #declare(Object, Object)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T get(Object key) {
+        return (T) context.get(key);
     }
 }
