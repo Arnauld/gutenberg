@@ -1,5 +1,6 @@
 package gutenberg.itext;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -32,12 +33,18 @@ public class ITextContext {
     private File fileOut;
     private PdfWriter pdfWriter;
     //
+    private PageNumber pageNumber;
+    private TableOfContents tableOfContents;
     private final Sections sections;
     private final Styles styles;
     //
     private final Map<Object, Object> context = Maps.newHashMap();
     private final Stack<Consumer<Element>> consumers = New.newStack();
     private final Map<Object, Emitter> registeredEmitters = Maps.newConcurrentMap();
+
+    //
+    private Function<PageInfos, Phrase> header;
+    private Function<PageInfos, Phrase> footer;
 
     public ITextContext(Sections sections, Styles styles) {
         this.sections = sections;
@@ -59,12 +66,29 @@ public class ITextContext {
     public ITextContext open(File fileOut) throws FileNotFoundException, DocumentException {
         this.document = createDocument();
         this.fileOut = fileOut;
+        this.pageNumber = new PageNumber();
+        this.tableOfContents = new TableOfContents(pageNumber);
+        this.header = constant(new Phrase(""));
+        this.footer = constant(new Phrase(""));
+
         OutputStream outStream = new FileOutputStream(fileOut);
         this.pdfWriter = PdfWriter.getInstance(document, outStream);
         this.pdfWriter.setBoxSize("art", getDocumentArtBox());
+        this.pdfWriter.setPageEvent(pageNumber);
+        this.pdfWriter.setPageEvent(tableOfContents);
+        this.pdfWriter.setPageEvent(new HeaderFooter(pageNumber, styles, header, footer));
         //
         document.open();
         return this;
+    }
+
+    private static <T, R> Function<T, R> constant(final R element) {
+        return new Function<T, R>() {
+            @Override
+            public R apply(T pageInfos) {
+                return element;
+            }
+        };
     }
 
     public void close() {

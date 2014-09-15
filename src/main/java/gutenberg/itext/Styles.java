@@ -122,14 +122,6 @@ public class Styles {
             return Optional.of(fontDescriptor.font(style, color));
     }
 
-    public Optional<BaseColor> getColor(Object key) {
-        BaseColor color = registeredColors.get(key);
-        if (color == null)
-            return Optional.absent();
-        else
-            return Optional.of(color);
-    }
-
     public Font getFontOrDefault(Object key) {
         Optional<Font> fontOpt = getFont(key);
         if (fontOpt.isPresent())
@@ -146,12 +138,28 @@ public class Styles {
             return new FontCopier(defaultFont()).style(style).color(color).get();
     }
 
-    public void registerColor(Object key, BaseColor color) {
-        registeredColors.put(key, color);
-    }
-
     public void registerFont(Object key, Font font) {
         registeredFonts.put(key, fontDescriptor(font));
+    }
+
+    public Optional<BaseColor> getColor(Object key) {
+        BaseColor color = registeredColors.get(key);
+        if (color == null)
+            return Optional.absent();
+        else
+            return Optional.of(color);
+    }
+
+    public BaseColor getColorOrDefault(Object key) {
+        Optional<BaseColor> color = getColor(key);
+        if (color.isPresent())
+            return color.get();
+        else
+            return defaultColor();
+    }
+
+    public void registerColor(Object key, BaseColor color) {
+        registeredColors.put(key, color);
     }
 
 }
