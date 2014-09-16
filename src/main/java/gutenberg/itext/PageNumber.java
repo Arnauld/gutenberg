@@ -17,21 +17,29 @@ public class PageNumber extends PdfPageEventHelper {
     private Sequence pnExtra = new Sequence(0, true);
     private Sequence pnCurrent = pnExtra;
     private List<PageInfos> emittedPageInfos = new ArrayList<PageInfos>();
+    private String text;
 
     public void notifyPageChange() {
         pageNumber++;
         pnCurrent = pnCurrent.next();
     }
 
+    @Override
     public void onStartPage(PdfWriter writer, Document document) {
         notifyPageChange();
+    }
+
+    public PageInfos pageInfos(String text) {
+        this.text = text;
+        return pageInfos();
     }
 
     public PageInfos pageInfos() {
         PageInfos pageInfos = new PageInfos(
                 pageNumber,
                 pnCurrent.formatPageNumber(),
-                pnCurrent == pnExtra);
+                pnCurrent == pnExtra,
+                text);
 
         if (!emittedPageInfos.contains(pageInfos))
             emittedPageInfos.add(pageInfos);
@@ -44,14 +52,17 @@ public class PageNumber extends PdfPageEventHelper {
     }
 
     public void continueExtra() {
+        resetText();
         pnCurrent.next = pnExtra;
     }
 
     public void startExtra() {
+        resetText();
         pnCurrent.next = pnExtra;
     }
 
     public void startContent() {
+        resetText();
         pnCurrent.next = pnContent;
     }
 
@@ -63,6 +74,10 @@ public class PageNumber extends PdfPageEventHelper {
             startPage = pageInfos.getRawPageNumber();
         }
         return startPage;
+    }
+
+    private void resetText() {
+        text = null;
     }
 
     private static class Sequence {

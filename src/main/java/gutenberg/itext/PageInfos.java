@@ -7,11 +7,13 @@ public class PageInfos {
     private final int rawPageNumber;
     private final String formattedPageNumber;
     private final boolean extra;
+    private final String text;
 
-    public PageInfos(int rawPageNumber, String formattedPageNumber, boolean isExtra) {
+    public PageInfos(int rawPageNumber, String formattedPageNumber, boolean isExtra, String text) {
         this.rawPageNumber = rawPageNumber;
         this.formattedPageNumber = formattedPageNumber;
         this.extra = isExtra;
+        this.text = text;
     }
 
     public String getFormattedPageNumber() {
@@ -24,6 +26,14 @@ public class PageInfos {
 
     public boolean isExtra() {
         return extra;
+    }
+
+    public String text() {
+        return text;
+    }
+
+    public boolean hasText() {
+        return text != null;
     }
 
     @Override

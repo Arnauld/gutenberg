@@ -51,7 +51,7 @@ public class TableOfContents extends PdfPageEventHelper {
     public void onSection(PdfWriter writer, Document document, float paragraphPosition, int depth, Paragraph title) {
         String anchorDst = "w" + (anchorId++);
         defineLocalDestinationOnFirstChunk(title, anchorDst);
-        addEntry(title.getContent(), depth, pageNumber.pageInfos(), anchorDst);
+        addEntry(title.getContent(), depth, pageNumber.pageInfos(title.getContent()), anchorDst);
     }
 
     /**
@@ -69,7 +69,7 @@ public class TableOfContents extends PdfPageEventHelper {
     public void onChapter(PdfWriter writer, Document document, float paragraphPosition, Paragraph title) {
         String anchorDst = "w" + (anchorId++);
         defineLocalDestinationOnFirstChunk(title, anchorDst);
-        addEntry(title.getContent(), 1, pageNumber.pageInfos(), anchorDst);
+        addEntry(title.getContent(), 1, pageNumber.pageInfos(title.getContent()), anchorDst);
     }
 
     private void defineLocalDestinationOnFirstChunk(Paragraph p, String anchor) {

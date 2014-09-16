@@ -23,25 +23,20 @@ import java.io.IOException;
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
-public class TableOfContentsPostProcess {
+public class TableOfContentsPostProcessor implements PostProcessor {
 
     private static final String TOC_ENTRY_FONT = "tableOfContents-entry-font";
 
-    private Logger log = LoggerFactory.getLogger(TableOfContentsPostProcess.class);
+    private Logger log = LoggerFactory.getLogger(TableOfContentsPostProcessor.class);
 
-    private final TableOfContents tableOfContents;
     private final HeaderFooter headerFooter;
-    private final Styles styles;
 
-    public TableOfContentsPostProcess(TableOfContents tableOfContents,
-                                      HeaderFooter headerFooter,
-                                      Styles styles) {
-        this.tableOfContents = tableOfContents;
+    public TableOfContentsPostProcessor(HeaderFooter headerFooter) {
         this.headerFooter = headerFooter;
-        this.styles = styles;
     }
 
-    public void postProcess(File fileIn, File fileOut) {
+    @Override
+    public void postProcess(ITextContext context, File fileIn, File fileOut) {
         FileInputStream in = null;
         FileOutputStream out = null;
 
@@ -49,10 +44,10 @@ public class TableOfContentsPostProcess {
             in = new FileInputStream(fileIn);
             out = new FileOutputStream(fileOut);
 
-            PageNumber pageNumber = tableOfContents.pageNumber();
+            PageNumber pageNumber = context.pageNumber();
 
-            int startPage = pageNumber.lookupExtraInsertionPage() + 1;
-            ColumnText ct = generateTableOfContent();
+            int startPage = pageNumber.lookupExtraInsertionPage();
+            ColumnText ct = generateTableOfContent(context);
             pageNumber.continueExtra();
 
             PdfReader reader = new PdfReader(in);
@@ -73,20 +68,21 @@ public class TableOfContentsPostProcess {
             stamper.close();
 
         } catch (FileNotFoundException e) {
-            log.error("Unable to reopen temporary generated file", e);
+            log.error("Unable to reopen temporary generated file ({})", fileIn, e);
         } catch (DocumentException e) {
-            log.error("Error during report post-processing", e);
+            log.error("Error during report post-processing from: {}, to: {}", fileIn, fileOut, e);
         } catch (IOException e) {
-            log.error("Error during report post-processing", e);
+            log.error("Error during report post-processing from: {}, to: {}", fileIn, fileOut, e);
         } finally {
             IOUtils.closeQuietly(out);
             IOUtils.closeQuietly(in);
         }
     }
 
-    public ColumnText generateTableOfContent() {
+    public ColumnText generateTableOfContent(ITextContext context) {
         ColumnText ct = new ColumnText(null);
 
+        Styles styles = context.styles();
         Chunk CONNECT = connectChunk(styles);
         Paragraph paragraph = new Paragraph();
         paragraph.setSpacingBefore(20.0f); // first paragraph only
@@ -95,6 +91,7 @@ public class TableOfContentsPostProcess {
         ct.addElement(new Paragraph(""));
 
         Font entryFont = styles.getFontOrDefault(TOC_ENTRY_FONT);
+        TableOfContents tableOfContents = context.tableOfContents();
         for (TableOfContents.Entry entry : tableOfContents.getEntries()) {
             if (entry.isExtra())
                 continue;

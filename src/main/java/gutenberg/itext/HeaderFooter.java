@@ -18,6 +18,15 @@ import static com.itextpdf.text.pdf.ColumnText.showTextAligned;
  */
 public class HeaderFooter extends PdfPageEventHelper {
 
+    public static Function<PageInfos, Phrase> none() {
+        return new Function<PageInfos, Phrase>() {
+            @Override
+            public Phrase apply(PageInfos pageInfos) {
+                return null;
+            }
+        };
+    }
+
     public static Function<PageInfos, Phrase> create(final Styles styles,
                                                      final Object fontKey,
                                                      final String firstPageTemplate,
@@ -28,13 +37,17 @@ public class HeaderFooter extends PdfPageEventHelper {
             public Phrase apply(PageInfos pageInfos) {
                 Font font = styles.getFontOrDefault(fontKey);
                 if (pageInfos.getRawPageNumber() == 1) {
-                    if (firstPageTemplate != null)
+                    if (firstPageTemplate != null) {
                         return new Phrase(firstPageTemplate, font);
+                    }
                 } else {
                     if (otherPage != null)
                         return otherPage;
-                    else if (otherPageTemplate != null)
-                        return new Phrase(otherPageTemplate, font);
+                    else if (otherPageTemplate != null) {
+                        String text = otherPageTemplate;
+                        text = text.replace("${sectionTitle}", pageInfos.hasText()?pageInfos.text():"");
+                        return new Phrase(text, font);
+                    }
                 }
                 return null;
             }
@@ -51,7 +64,7 @@ public class HeaderFooter extends PdfPageEventHelper {
     private final Function<PageInfos, Phrase> footer;
 
     private Rectangle rect;
-    private boolean drawLine = false;
+    private boolean drawLine = true;
 
     public HeaderFooter(PageNumber pageNumber,
                         Styles styles,
@@ -112,4 +125,5 @@ public class HeaderFooter extends PdfPageEventHelper {
     private Phrase footerText(PageInfos pageInfos) {
         return footer.apply(pageInfos);
     }
+
 }

@@ -51,6 +51,10 @@ public class ITextContext {
         this.styles = styles;
     }
 
+    public TableOfContents tableOfContents() {
+        return tableOfContents;
+    }
+
     public Styles styles() {
         return styles;
     }
@@ -114,6 +118,10 @@ public class ITextContext {
 
     public Sections sections() {
         return sections;
+    }
+
+    public PageNumber pageNumber() {
+        return pageNumber;
     }
 
     @SuppressWarnings("unchecked")
