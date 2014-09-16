@@ -46,9 +46,9 @@ public class TableOfContentsPostProcessor implements PostProcessor {
 
             PageNumber pageNumber = context.pageNumber();
 
-            int startPage = pageNumber.lookupExtraInsertionPage();
+            int startPage = pageNumber.lookupFrontMatterLastPage();
             ColumnText ct = generateTableOfContent(context);
-            pageNumber.continueExtra();
+            pageNumber.continueFrontMatter();
 
             PdfReader reader = new PdfReader(in);
             PdfStamper stamper = new PdfStamper(reader, out);
@@ -93,8 +93,8 @@ public class TableOfContentsPostProcessor implements PostProcessor {
         Font entryFont = styles.getFontOrDefault(TOC_ENTRY_FONT);
         TableOfContents tableOfContents = context.tableOfContents();
         for (TableOfContents.Entry entry : tableOfContents.getEntries()) {
-            if (entry.isExtra())
-                continue;
+            //if (entry.isExtra())
+            //    continue;
 
             Chunk chunk = new Chunk(entry.getText(), entryFont);
             paragraph.add(chunk);

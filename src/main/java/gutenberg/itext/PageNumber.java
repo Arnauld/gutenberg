@@ -1,23 +1,28 @@
 package gutenberg.itext;
 
 import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.util.RomanNumeral;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class PageNumber extends PdfPageEventHelper {
+
+    private Sequence pnMainMatter = new Sequence();
+    private Sequence pnFrontMatter = new Sequence(0, true);
+
+    private PageInfos.Matter currentMatter = PageInfos.Matter.Front;
+    private Sequence pnCurrent = pnFrontMatter;
     private int pageNumber;
-    private Sequence pnContent = new Sequence();
-    private Sequence pnExtra = new Sequence(0, true);
-    private Sequence pnCurrent = pnExtra;
     private List<PageInfos> emittedPageInfos = new ArrayList<PageInfos>();
-    private String text;
+    private String[] sectionTitles = new String[10];
 
     public void notifyPageChange() {
         pageNumber++;
@@ -25,21 +30,28 @@ public class PageNumber extends PdfPageEventHelper {
     }
 
     @Override
-    public void onStartPage(PdfWriter writer, Document document) {
-        notifyPageChange();
+    public void onChapter(PdfWriter writer, Document document, float paragraphPosition, Paragraph title) {
+        Arrays.fill(sectionTitles, 1, sectionTitles.length, null);
+        sectionTitles[1] = title.getContent();
     }
 
-    public PageInfos pageInfos(String text) {
-        this.text = text;
-        return pageInfos();
+    @Override
+    public void onSection(PdfWriter writer, Document document, float paragraphPosition, int depth, Paragraph title) {
+        Arrays.fill(sectionTitles, depth, sectionTitles.length, null);
+        sectionTitles[depth] = title.getContent();
+    }
+
+    @Override
+    public void onStartPage(PdfWriter writer, Document document) {
+        notifyPageChange();
     }
 
     public PageInfos pageInfos() {
         PageInfos pageInfos = new PageInfos(
                 pageNumber,
                 pnCurrent.formatPageNumber(),
-                pnCurrent == pnExtra,
-                text);
+                currentMatter,
+                Arrays.copyOf(sectionTitles, sectionTitles.length));
 
         if (!emittedPageInfos.contains(pageInfos))
             emittedPageInfos.add(pageInfos);
@@ -47,37 +59,55 @@ public class PageNumber extends PdfPageEventHelper {
         return pageInfos;
     }
 
-    private List<PageInfos> getEmittedPageInfos() {
+    private List<PageInfos> emittedPageInfos() {
         return emittedPageInfos;
     }
 
-    public void continueExtra() {
-        resetText();
-        pnCurrent.next = pnExtra;
-    }
-
-    public void startExtra() {
-        resetText();
-        pnCurrent.next = pnExtra;
-    }
-
-    public void startContent() {
-        resetText();
-        pnCurrent.next = pnContent;
-    }
-
-    public int lookupExtraInsertionPage() {
-        int startPage = -1;
-        for (PageInfos pageInfos : getEmittedPageInfos()) {
-            if (!pageInfos.isExtra())
-                break;
-            startPage = pageInfos.getRawPageNumber();
+    public void continueFrontMatter() {
+        currentMatter = PageInfos.Matter.Front;
+        PageInfos pageInfos = lastFrontMatterInfos();
+        if (pageInfos != null) {
+            sectionTitles = Arrays.copyOf(pageInfos.sectionTitles(), sectionTitles.length);
+        } else {
+            resetText();
         }
-        return startPage;
+        pnCurrent.next = pnFrontMatter;
     }
 
     private void resetText() {
-        text = null;
+        Arrays.fill(sectionTitles, 0, sectionTitles.length, null);
+    }
+
+    public void startFrontMatter() {
+        currentMatter = PageInfos.Matter.Front;
+        resetText();
+        pnFrontMatter = new Sequence(0, true);
+        pnCurrent.next = pnFrontMatter;
+    }
+
+    public void startMainMatter() {
+        currentMatter = PageInfos.Matter.Main;
+        resetText();
+        pnMainMatter = new Sequence();
+        pnCurrent.next = pnMainMatter;
+    }
+
+    private PageInfos lastFrontMatterInfos() {
+        PageInfos found = null;
+        for (PageInfos pageInfos : emittedPageInfos()) {
+            if (!pageInfos.is(PageInfos.Matter.Front))
+                break;
+            found = pageInfos;
+        }
+        return found;
+    }
+
+    public int lookupFrontMatterLastPage() {
+        PageInfos pageInfos = lastFrontMatterInfos();
+        if (pageInfos == null)
+            return -1;
+        else
+            return pageInfos.getRawPageNumber();
     }
 
     private static class Sequence {

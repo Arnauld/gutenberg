@@ -12,6 +12,7 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import static com.itextpdf.text.pdf.ColumnText.showTextAligned;
+import static org.apache.commons.lang3.StringUtils.defaultString;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -45,7 +46,8 @@ public class HeaderFooter extends PdfPageEventHelper {
                         return otherPage;
                     else if (otherPageTemplate != null) {
                         String text = otherPageTemplate;
-                        text = text.replace("${sectionTitle}", pageInfos.hasText()?pageInfos.text():"");
+                        text = text.replace("${chapterTitle}", defaultString(pageInfos.chapterTitle()));
+                        text = text.replace("${sectionTitle}", defaultString(pageInfos.sectionTitle()));
                         return new Phrase(text, font);
                     }
                 }
@@ -62,6 +64,7 @@ public class HeaderFooter extends PdfPageEventHelper {
     private final Styles styles;
     private final Function<PageInfos, Phrase> header;
     private final Function<PageInfos, Phrase> footer;
+    private boolean footerOnFirstPage = false;
 
     private Rectangle rect;
     private boolean drawLine = true;
@@ -74,6 +77,11 @@ public class HeaderFooter extends PdfPageEventHelper {
         this.styles = styles;
         this.header = header;
         this.footer = footer;
+    }
+
+    public HeaderFooter footerOnFirstPage(boolean footerOnFirstPage) {
+        this.footerOnFirstPage = footerOnFirstPage;
+        return this;
     }
 
     @Override
@@ -96,6 +104,9 @@ public class HeaderFooter extends PdfPageEventHelper {
     }
 
     public void drawFooter(PdfContentByte canvas, PageInfos pageInfos) {
+        if (pageInfos.getRawPageNumber() == 1 && !footerOnFirstPage)
+            return;
+
         if (drawLine) {
             BaseColor lineColor = styles.getColorOrDefault(HEADER_LINE_COLOR);
             canvas.saveState();
