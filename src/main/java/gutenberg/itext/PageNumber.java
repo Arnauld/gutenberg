@@ -82,14 +82,14 @@ public class PageNumber extends PdfPageEventHelper {
         currentMatter = PageInfos.Matter.Front;
         resetText();
         pnFrontMatter = new Sequence(0, true);
-        pnCurrent.next = pnFrontMatter;
+        pnCurrent = pnFrontMatter;
     }
 
     public void startMainMatter() {
         currentMatter = PageInfos.Matter.Main;
         resetText();
         pnMainMatter = new Sequence();
-        pnCurrent.next = pnMainMatter;
+        pnCurrent = pnMainMatter;
     }
 
     private PageInfos lastFrontMatterInfos() {
