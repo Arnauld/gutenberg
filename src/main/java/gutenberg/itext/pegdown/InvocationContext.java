@@ -228,7 +228,7 @@ public class InvocationContext {
         processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new DefaultBodyCellStyler(styles)));
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
-        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(variableResolver, iTextContext));
+        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(iTextContext));
         processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
         processors.put(AttributesNode.class, new AttributesNodeProcessor());
     }

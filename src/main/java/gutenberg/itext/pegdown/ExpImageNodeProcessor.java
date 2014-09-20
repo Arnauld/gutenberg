@@ -13,7 +13,6 @@ import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.util.Attributes;
 import gutenberg.util.Dimension;
 import gutenberg.util.DimensionFormatException;
-import gutenberg.util.VariableResolver;
 import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.ParaNode;
@@ -25,9 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import static gutenberg.pegdown.TreeNavigation.firstAncestorOfType;
-import static gutenberg.pegdown.TreeNavigation.ofType;
-import static gutenberg.pegdown.TreeNavigation.siblingBefore;
+import static gutenberg.pegdown.TreeNavigation.*;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -36,11 +33,9 @@ public class ExpImageNodeProcessor extends Processor {
 
     private final Logger log = LoggerFactory.getLogger(ExpImageNodeProcessor.class);
 
-    private final VariableResolver variableResolver;
     private final ITextContext iTextContext;
 
-    public ExpImageNodeProcessor(VariableResolver variableResolver, ITextContext iTextContext) {
-        this.variableResolver = variableResolver;
+    public ExpImageNodeProcessor(ITextContext iTextContext) {
         this.iTextContext = iTextContext;
     }
 
@@ -48,22 +43,9 @@ public class ExpImageNodeProcessor extends Processor {
     public List<Element> process(int level, Node node, InvocationContext context) {
         ExpImageNode imageNode = (ExpImageNode) node;
         String title = imageNode.title;
-        String url = variableResolver.resolve(imageNode.url);
+        String url = context.variableResolver().resolve(imageNode.url);
 
-        TreeNavigation nav = context.treeNavigation();
-        Optional<TreeNavigation> attrNode =
-                firstAncestorOfType(ParaNode.class)
-                        .then(siblingBefore())
-                        .then(ofType(AttributesNode.class))
-                        .query(nav);
-
-        Attributes attributes;
-        if(attrNode.isPresent()) {
-            attributes = attrNode.get().peek(AttributesNode.class).asAttributes();
-        }
-        else {
-            attributes = new Attributes();
-        }
+        Attributes attributes = lookupAttributes(context);
 
         Dimension dim = readWidth(attributes);
 
@@ -98,6 +80,23 @@ public class ExpImageNodeProcessor extends Processor {
             log.error("Failed to open image url '{}'", url, e);
         }
         return elements();
+    }
+
+    private Attributes lookupAttributes(InvocationContext context) {
+        TreeNavigation nav = context.treeNavigation();
+        Optional<TreeNavigation> attrNode =
+                firstAncestorOfType(ParaNode.class)
+                        .then(siblingBefore())
+                        .then(ofType(AttributesNode.class))
+                        .query(nav);
+
+        Attributes attributes;
+        if (attrNode.isPresent()) {
+            attributes = attrNode.get().peek(AttributesNode.class).asAttributes();
+        } else {
+            attributes = new Attributes();
+        }
+        return attributes;
     }
 
     private Dimension readWidth(Attributes attributes) {

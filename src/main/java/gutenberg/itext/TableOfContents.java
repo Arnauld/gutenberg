@@ -37,7 +37,7 @@ public class TableOfContents extends PdfPageEventHelper {
 
     /**
      * Called when a Section is written.
-     * <p/>
+     * <br>
      * <CODE>position</CODE> will hold the height at which the
      * section will be written to.
      *
@@ -56,7 +56,7 @@ public class TableOfContents extends PdfPageEventHelper {
 
     /**
      * Called when a Chapter is written.
-     * <p/>
+     * <br>
      * <CODE>position</CODE> will hold the height at which the
      * chapter will be written to.
      *

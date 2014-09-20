@@ -6,8 +6,8 @@
         </encoder>
     </appender>
 
-    <logger name="gutenberg" level="debug"/>
-    <logger name="gutenberg.pygments" level="debug"/>
+    <logger name="gutenberg" level="info"/>
+    <logger name="gutenberg.pygments" level="info"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>

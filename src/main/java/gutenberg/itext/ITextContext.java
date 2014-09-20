@@ -8,6 +8,7 @@ import gutenberg.util.Collector;
 import gutenberg.util.Consumer;
 import gutenberg.util.Margin;
 import gutenberg.util.New;
+import gutenberg.util.VariableResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,10 +46,15 @@ public class ITextContext {
     //
     private Function<PageInfos, Phrase> header;
     private Function<PageInfos, Phrase> footer;
+    private VariableResolver variableResolver = new VariableResolver();
 
     public ITextContext(Sections sections, Styles styles) {
         this.sections = sections;
         this.styles = styles;
+    }
+
+    public VariableResolver variableResolver() {
+        return variableResolver;
     }
 
     public TableOfContents tableOfContents() {
@@ -219,6 +225,8 @@ public class ITextContext {
 
     /**
      * Generic placeholder to store a value.
+     * @param key property's key
+     * @param value property's value
      */
     public void declare(Object key, Object value) {
         context.put(key, value);
@@ -227,7 +235,11 @@ public class ITextContext {
     /**
      * Retrieve the value declared for the key.
      *
+     * @param key property's key
+     * @param <T> type the property (inferred)
+     * @return property's value if found otherwise <code>null</code>
      * @see #declare(Object, Object)
+     * @throws java.lang.ClassCastException if the property's value is not of the inferred type
      */
     @SuppressWarnings("unchecked")
     public <T> T get(Object key) {
