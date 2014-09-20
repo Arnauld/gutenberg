@@ -63,7 +63,7 @@ public class TreeNavigationTest extends AbstractPegdownTest {
         assertThat(result3.isPresent()).isTrue();
         assertThat(result3.get().peek()).isInstanceOf(AttributesNode.class);
 
-        System.out.println("TreeNavigationTest.usecase" + dumpAST(rootNode));
+        //System.out.println("TreeNavigationTest.usecase" + dumpAST(rootNode));
     }
 
     @Test
