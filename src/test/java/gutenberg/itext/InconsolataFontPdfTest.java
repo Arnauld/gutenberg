@@ -4,28 +4,17 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import gutenberg.TestSettings;
-import gutenberg.font.FontAwesome;
 import org.junit.Before;
 import org.junit.Test;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.util.PDFTextStripper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Comparator;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -43,7 +32,7 @@ public class InconsolataFontPdfTest {
     @Test
     public void simpleGenerate() throws IOException, DocumentException {
         openDocument("simpleGenerate");
-        emit("font/Inconsolata.otf", BaseFont.WINANSI  );
+        emit("font/Inconsolata.otf", BaseFont.WINANSI);
         closeDocument();
     }
 

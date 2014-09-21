@@ -18,7 +18,7 @@ public class VerbatimNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         VerbatimNode vNode = (VerbatimNode) node;
 
         SourceCode code = convertToSourceCode(vNode);
@@ -27,7 +27,7 @@ public class VerbatimNodeProcessor extends Processor {
 
 
         ITextContext iTextContext = context.iTextContext();
-        return iTextContext.emitButCollectElements(code);
+        iTextContext.emit(code);
     }
 
     private SourceCode convertToSourceCode(VerbatimNode vNode) {

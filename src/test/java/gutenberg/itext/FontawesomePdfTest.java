@@ -14,8 +14,8 @@ import gutenberg.TestSettings;
 import gutenberg.font.FontAwesome;
 import org.junit.Before;
 import org.junit.Test;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.util.PDFTextStripper;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFTextStripper;
 
 import java.io.File;
 import java.io.FileInputStream;

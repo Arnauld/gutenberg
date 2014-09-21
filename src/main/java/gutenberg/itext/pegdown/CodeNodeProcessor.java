@@ -25,14 +25,15 @@ public class CodeNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         CodeNode cNode = (CodeNode) node;
 
         Font font = styles.getFont(Styles.INLINE_CODE_FONT).or(inlineCodeFont(styles));
         Chunk chunk = new Chunk(cNode.getText(), font);
         chunk.setBackground(styles.getColor(Styles.INLINE_CODE_BACKGROUND).or(BaseColor.GRAY));
         chunk.setGenericTag("code");
-        return elements(chunk);
+
+        context.append(chunk);
     }
 
     private Supplier<? extends Font> inlineCodeFont(final Styles styles) {

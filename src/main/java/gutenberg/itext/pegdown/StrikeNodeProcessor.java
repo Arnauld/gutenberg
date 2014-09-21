@@ -11,12 +11,11 @@ import java.util.List;
  */
 public class StrikeNodeProcessor extends Processor {
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         Font font = context.peekFont();
         int style = Font.STRIKETHRU;
         context.pushFont(new Font(font.getBaseFont(), font.getSize(), font.getStyle() | style));
-        List<Element> subs = context.processChildren(level, node);
+        context.processChildren(level, node);
         context.popFont();
-        return subs;
     }
 }

@@ -21,7 +21,7 @@ public class TableNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
 
         TableNode tableNode = (TableNode) node;
         List<TableColumnNode> tableNodeColumns = tableNode.getColumns();
@@ -33,6 +33,6 @@ public class TableNodeProcessor extends Processor {
         context.pushTable(new TableInfos(table, tableNodeColumns));
         context.processChildren(level, node);
         context.popTable();
-        return elements(table);
+        context.append(table);
     }
 }

@@ -141,7 +141,6 @@ public class ITextContext {
     public void appendAll(Iterable<? extends Element> elements) {
         for (Element e : elements)
             append(e);
-
     }
 
     public void append(Element element) {

@@ -15,7 +15,7 @@ public abstract class Processor {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
-    public abstract List<Element> process(int level, Node node, InvocationContext context);
+    public abstract void process(int level, Node node, InvocationContext context);
 
     protected static List<Element> elements(Element... elements) {
         return Arrays.asList(elements);

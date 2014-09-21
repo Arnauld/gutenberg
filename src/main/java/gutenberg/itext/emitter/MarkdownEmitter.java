@@ -39,11 +39,9 @@ public class MarkdownEmitter implements Emitter<Markdown> {
 
         try {
             InvocationContext invocationContext =
-                    new InvocationContext(context, styles)
-                            .variableResolver(context.variableResolver())
-                            .useSections(context.sections());
-            List<Element> elements = invocationContext.process(0, rootNode);
-            context.appendAll(elements);
+                    new InvocationContext(context, styles);
+            invocationContext.process(0, rootNode);
+            invocationContext.flushPendingChapter();
         } catch (IOException e) {
             log.error("Fail to generate markdown", e);
             emitRaw(value, context);

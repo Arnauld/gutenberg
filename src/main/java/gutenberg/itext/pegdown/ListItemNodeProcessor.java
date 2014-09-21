@@ -13,8 +13,8 @@ import java.util.List;
 public class ListItemNodeProcessor extends Processor {
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
-        List<Element> subs = context.processChildren(level, node);
+    public void process(int level, Node node, InvocationContext context) {
+        List<Element> subs = context.collectChildren(level, node);
 
         List<Element> head = Lists.newArrayList();
         Iterator<Element> iterator = subs.iterator();
@@ -49,7 +49,8 @@ public class ListItemNodeProcessor extends Processor {
         ListItem item = new ListItem(p);
         item.add(subList);
         //item.setListSymbol(bulletSymbol());
-        return elements(item);
+
+        context.append(item);
     }
 
     private static Chunk bulletSymbol() {

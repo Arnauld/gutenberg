@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 import static gutenberg.pegdown.TreeNavigation.*;
 
@@ -40,7 +39,7 @@ public class ExpImageNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         ExpImageNode imageNode = (ExpImageNode) node;
         String title = imageNode.title;
         String url = context.variableResolver().resolve(imageNode.url);
@@ -71,7 +70,7 @@ public class ExpImageNodeProcessor extends Processor {
                 p.add(new Chunk(title));
             }
 
-            return elements(p);
+            context.append(p);
         } catch (MalformedURLException e) {
             log.error("Failed to open image url '{}'", url, e);
         } catch (IOException e) {
@@ -79,7 +78,6 @@ public class ExpImageNodeProcessor extends Processor {
         } catch (BadElementException e) {
             log.error("Failed to open image url '{}'", url, e);
         }
-        return elements();
     }
 
     private Attributes lookupAttributes(InvocationContext context) {

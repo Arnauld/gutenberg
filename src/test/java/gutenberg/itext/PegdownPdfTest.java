@@ -4,14 +4,24 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
+import com.itextpdf.text.pdf.PdfDictionary;
+import com.itextpdf.text.pdf.PdfName;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.ContentByteUtils;
+import com.itextpdf.text.pdf.parser.ImageRenderInfo;
+import com.itextpdf.text.pdf.parser.PdfContentStreamProcessor;
+import com.itextpdf.text.pdf.parser.RenderListener;
+import com.itextpdf.text.pdf.parser.TextRenderInfo;
 import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
 import gutenberg.itext.support.ITextContextBuilder;
 import gutenberg.pegdown.plugin.AttributesPlugin;
 import gutenberg.pygments.styles.FriendlyStyle;
-import gutenberg.util.VariableResolver;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.util.PDFImageWriter;
+import org.apache.pdfbox.util.PDFTextStripper;
 import org.junit.Before;
 import org.junit.Test;
 import org.pegdown.Extensions;
@@ -19,12 +29,11 @@ import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
 import org.pegdown.plugins.PegDownPlugins;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -35,6 +44,7 @@ public class PegdownPdfTest {
     private String workingDir;
     private String projectDir;
     private Styles styles;
+    private File fileOut;
 
     @Before
     public void setUp() throws IOException, DocumentException {
@@ -57,21 +67,124 @@ public class PegdownPdfTest {
     @Test
     public void headers() throws Exception {
         process("headers", "/gutenberg/pegdown/headers.md");
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(3);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          1.  H1a \n" +
+                "          1.1.  H2a \n");
+        assertThat(pages.get(1).renderedText()).isEqualTo("" +
+                "          2.  H1b \n" +
+                "          2.1.  H2b \n" +
+                "            2.1.1.  H3b \n" +
+                "              2.1.1.1.  H4b \n" +
+                "                2.1.1.1.1.  H5b \n" +
+                "                  2.1.1.1.1.1.  H6b \n" +
+                "                      \n" +
+                "                    Alternatively, for H1 and H2, an underline-ish style: \n" +
+                "                      \n" +
+                "                                                                                                            ii \n");
+        assertThat(pages.get(2).renderedText()).isEqualTo("" +
+                "          3.  Alt-H1 \n" +
+                "          3.1.  Alt-H2 \n" +
+                "                                                                                                           iii \n");
     }
 
     @Test
     public void headers_01() throws Exception {
         process("headers_01", "/gutenberg/pegdown/headers-01.md");
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          1.  H1a \n" +
+                "          1.1.  H2a \n");
+    }
+
+    @Test
+    public void headers_02() throws Exception {
+        process("headers_02", "/gutenberg/pegdown/headers-02.md");
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(2);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          1.  H1-1 \n" +
+                "            \n" +
+                "          Wahoo! \n" +
+                "            \n");
+        assertThat(pages.get(1).renderedText()).isEqualTo("" +
+                "          2.  H1-2 \n" +
+                "            \n" +
+                "          Doooo! \n" +
+                "            \n" +
+                "                                                                                                            ii \n");
     }
 
     @Test
     public void list_01() throws Exception {
         process("list_01", "/gutenberg/pegdown/list-01.md");
+
+        //pdfToImage(fileOut);
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          1. First ordered list item \n" +
+                "          2. Another item \n" +
+                "              - Unordered sub-list. \n" +
+                "          3. Actual numbers don ' t matter, just that it ' s a number \n" +
+                "              1. Ordered sub-list \n" +
+                "              2. Ordered sub-list \n" +
+                "          4. And another item. \n" +
+                "                \n" +
+                "              You can have properly indented paragraphs within list items. Notice the blank line above, and the leading \n" +
+                "              spaces (at least one, but we ' ll use three here to also align the raw Markdown). \n" +
+                "                \n" +
+                "                \n" +
+                "              To have a line break without a paragraph, you will need to use two trailing spaces.   Note that this line is \n" +
+                "              separate, but within the same paragraph.   (This is contrary to the typical GFM line break behaviour, where \n" +
+                "              trailing spaces are not required.) \n" +
+                "                \n" +
+                "          5. And yet another \n" +
+                "                \n" +
+                "              If you’d like to add a paragraph in the middle of a list, and have the list numbering continue afterwards, you \n" +
+                "              can indent the paragraph by four spaces. \n" +
+                "                \n" +
+                "          - Unordered list can use asterisks \n" +
+                "          - Or minuses \n" +
+                "          - Or pluses \n");
     }
 
     @Test
     public void table_01() throws Exception {
         process("table_01", "/gutenberg/pegdown/table-01.md");
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          Colons can be used to align columns. \n" +
+                "            \n" +
+                "                    Tables                             Are                                Cool \n" +
+                "                    col 3 is                            right-aligned                             $1600 \n" +
+                "                    col 2 is                              centered                                $12 \n" +
+                "                    zebra stripes                         are neat                                  $1 \n" +
+                "            \n" +
+                "          The outer pipes (|) are optional, and you don ' t need to make the raw Markdown line up prettily. You can also \n" +
+                "          use inline Markdown. \n" +
+                "            \n" +
+                "                    Markdown              Less                     Pretty \n" +
+                "                    Still                        renders                    nicely \n" +
+                "                    1                          2                          3 \n");
     }
 
     @Test
@@ -98,13 +211,12 @@ public class PegdownPdfTest {
         return new Function<InvocationContext, InvocationContext>() {
             @Override
             public InvocationContext apply(InvocationContext invocationContext) {
-                VariableResolver variableResolver =
-                        invocationContext
-                                .variableResolver()
-                                .declare("imageDir", "file://" + projectDir + "/doc")
-                                .declare("resourcePathAsDir", "file://" + projectDir + "/src/test/resources")
-                                .declare("resourcePath", "classpath:");
-                return invocationContext.variableResolver(variableResolver);
+                invocationContext
+                        .variableResolver()
+                        .declare("imageDir", "file://" + projectDir + "/doc")
+                        .declare("resourcePathAsDir", "file://" + projectDir + "/src/test/resources")
+                        .declare("resourcePath", "classpath:");
+                return invocationContext;
             }
         };
     }
@@ -156,20 +268,18 @@ public class PegdownPdfTest {
             return;
         }
 
-        List<Element> elements = context.process(0, rootNode);
-        for (Element element : elements) {
-            document.add(element);
-        }
+        context.process(0, rootNode);
+        context.flushPendingChapter();
         iTextContext.close();
     }
 
     private ITextContext openDocument(String method) throws FileNotFoundException, DocumentException {
-        File file = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
+        fileOut = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
         return new ITextContextBuilder()
                 .usingPygmentsStyleSheet(new FriendlyStyle())
                 .usingStyles(styles)
                 .build()
-                .open(file);
+                .open(fileOut);
     }
 
     protected String loadResource(String resourceName) throws IOException {
@@ -178,6 +288,121 @@ public class PegdownPdfTest {
             return IOUtils.toString(stream, "utf8");
         } finally {
             IOUtils.closeQuietly(stream);
+        }
+    }
+
+    /**
+     * Load pdf with an other library that generates it :)
+     */
+    private String extractPdfText(InputStream stream) throws IOException {
+        //return pdfBoxExtractText(stream);
+        return itextExtractText(stream);
+    }
+
+    private String pdfBoxExtractText(InputStream stream) throws IOException {
+        PDDocument pdfDocument = PDDocument.load(stream);
+        try {
+            return new PDFTextStripper().getText(pdfDocument);
+        } finally {
+            pdfDocument.close();
+        }
+    }
+
+    /**
+     *
+     */
+    private void pdfToImage(File fileIn) throws IOException {
+        PDDocument document = PDDocument.load(new FileInputStream(fileIn));
+        int imageType = BufferedImage.TYPE_INT_RGB;
+
+        PDFImageWriter imageWriter = new PDFImageWriter();
+        String password = null;
+        int startPage = 1;
+        int endPage = Integer.MAX_VALUE;
+
+        String pdfFile = fileIn.getAbsolutePath();
+        String outputPrefix = pdfFile.substring(0, pdfFile.lastIndexOf('.'));
+        String imageFormat = "jpg";
+        int resolution = 150;
+
+        boolean success = imageWriter.writeImage(document, imageFormat, password,
+                startPage, endPage, outputPrefix, imageType, resolution);
+        assertThat(success).describedAs("Failed to render pdf as images...").isTrue();
+    }
+
+    /**
+     * Extracts text from a PDF document.
+     *
+     * @param src the original PDF document
+     * @throws IOException
+     */
+    public String itextExtractText(InputStream src) throws IOException {
+        StringWriter writer = new StringWriter();
+        PrintWriter out = new PrintWriter(writer);
+        PdfReader reader = new PdfReader(src);
+        RenderListener listener = new MyTextRenderListener(out);
+        PdfContentStreamProcessor processor = new PdfContentStreamProcessor(listener);
+        PdfDictionary pageDic = reader.getPageN(1);
+        PdfDictionary resourcesDic = pageDic.getAsDict(PdfName.RESOURCES);
+        processor.processContent(ContentByteUtils.getContentBytesForPage(reader, 1), resourcesDic);
+        out.flush();
+        out.close();
+        reader.close();
+        return writer.toString();
+    }
+
+    public class MyTextRenderListener implements RenderListener {
+
+        private PrintWriter out;
+        private int indent = 0;
+
+        public MyTextRenderListener(PrintWriter out) {
+            this.out = out;
+        }
+
+        /**
+         * @see com.itextpdf.text.pdf.parser.RenderListener#beginTextBlock()
+         */
+        public void beginTextBlock() {
+            out.println("<");
+            indent++;
+        }
+
+        /**
+         * @see com.itextpdf.text.pdf.parser.RenderListener#endTextBlock()
+         */
+        public void endTextBlock() {
+            indent--;
+            out.println(">");
+        }
+
+        /**
+         * @see com.itextpdf.text.pdf.parser.RenderListener#renderImage(
+         *com.itextpdf.text.pdf.parser.ImageRenderInfo)
+         */
+        public void renderImage(ImageRenderInfo renderInfo) {
+        }
+
+        /**
+         * @see com.itextpdf.text.pdf.parser.RenderListener#renderText(
+         *com.itextpdf.text.pdf.parser.TextRenderInfo)
+         */
+        public void renderText(TextRenderInfo renderInfo) {
+            out.print(indent());
+            out.print("text: \"");
+            out.print(renderInfo.getText());
+            out.print("\"");
+            out.print(" @ (");
+            out.print(renderInfo.getBaseline().getStartPoint().get(0));
+            out.print(", ");
+            out.print(renderInfo.getBaseline().getStartPoint().get(1));
+            out.print(") length: ");
+            out.print(renderInfo.getBaseline().getLength());
+            out.println();
+        }
+
+        private String indent() {
+            return StringUtils.repeat("  ", indent);
         }
     }
 }

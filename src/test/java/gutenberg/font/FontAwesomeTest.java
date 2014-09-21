@@ -1,11 +1,7 @@
 package gutenberg.font;
 
 import org.junit.Test;
-import org.pdfbox.pdmodel.PDDocument;
-import org.pdfbox.util.PDFTextStripper;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +27,7 @@ public class FontAwesomeTest {
     @Test
     public void variablesFile_should_be_correctly_read() {
         FontAwesome font = new FontAwesome().loadVariablesFromResources("/font/variables.less");
-        assertThat(font.get("youtube-square")).isEqualTo(String.valueOf((char)0xf166));
+        assertThat(font.get("youtube-square")).isEqualTo(String.valueOf((char) 0xf166));
         assertThat(font.keys()).hasSize(503);
     }
 

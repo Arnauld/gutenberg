@@ -16,11 +16,11 @@ import java.util.List;
  */
 public class TableRowNodeProcessor extends Processor {
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         TreeNavigation nav = context.treeNavigation();
         boolean isHeaderRow = nav.ancestorTreeMatches(TableRowNode.class, TableHeaderNode.class);
 
-        List<Element> elements = context.processChildren(level, node);
+        List<Element> elements = context.collectChildren(level, node);
 
         TableInfos tableInfos = context.peekTable();
         PdfPTable table = tableInfos.getTable();
@@ -39,7 +39,5 @@ public class TableRowNodeProcessor extends Processor {
             table.setHeaderRows(headerRows + 1);
         }
 
-        // elements already added
-        return elements();
     }
 }

@@ -26,13 +26,13 @@ public class BlockQuoteNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         Font font = context.peekFont();
 
         BaseColor color = styles.getColor(Styles.BLOCKQUOTE_COLOR).or(BaseColor.LIGHT_GRAY);
 
         context.pushFont(new FontCopier(font).italic().color(color).get());
-        List<Element> subs = context.processChildren(level, node);
+        List<Element> subs = context.collectChildren(level, node);
         context.popFont();
 
         Paragraph p = new Paragraph();
@@ -60,6 +60,6 @@ public class BlockQuoteNodeProcessor extends Processor {
         table.setSpacingBefore(20f);
         table.setSpacingAfter(20f);
 
-        return elements(table);
+        context.append(table);
     }
 }

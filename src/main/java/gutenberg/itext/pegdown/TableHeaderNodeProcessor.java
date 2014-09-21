@@ -19,12 +19,9 @@ public class TableHeaderNodeProcessor extends Processor {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         context.pushCellStyler(headerCellStyler);
         context.processChildren(level, node);
         context.popCellStyler();
-
-        // elements already added
-        return elements();
     }
 }

@@ -5,6 +5,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
@@ -51,9 +52,10 @@ public class TableOfContentsPostProcessor implements PostProcessor {
             pageNumber.continueFrontMatter();
 
             PdfReader reader = new PdfReader(in);
+            Rectangle pageSize = reader.getPageSize(1);
             PdfStamper stamper = new PdfStamper(reader, out);
             while (true) {
-                stamper.insertPage(++startPage, reader.getPageSize(1));
+                stamper.insertPage(++startPage, pageSize);
 
                 PdfContentByte under = stamper.getUnderContent(startPage);
                 pageNumber.notifyPageChange();

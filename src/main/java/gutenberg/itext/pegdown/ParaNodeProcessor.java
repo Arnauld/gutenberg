@@ -13,15 +13,15 @@ import java.util.List;
 public class ParaNodeProcessor extends Processor {
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
-        List<Element> subs = context.processChildren(level, node);
+    public void process(int level, Node node, InvocationContext context) {
+        List<Element> subs = context.collectChildren(level, node);
         Paragraph p = new Paragraph();
         for (Element sub : subs) {
             p.add(discardNewline(sub));
         }
         p.setSpacingBefore(5);
         p.setSpacingAfter(5);
-        return elements(p);
+        context.append(p);
     }
 
     private static Element discardNewline(Element sub) {

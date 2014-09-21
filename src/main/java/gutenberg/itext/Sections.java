@@ -92,4 +92,8 @@ public class Sections {
         }
         return prev;
     }
+
+    public void restoreChapter(Chapter chapter) {
+        sections[1] = chapter;
+    }
 }

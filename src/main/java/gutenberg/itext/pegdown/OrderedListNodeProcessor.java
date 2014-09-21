@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class OrderedListNodeProcessor extends Processor {
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
-        List<Element> subs = context.processChildren(level, node);
+    public void process(int level, Node node, InvocationContext context) {
+        List<Element> subs = context.collectChildren(level, node);
 
         com.itextpdf.text.List orderedList = new com.itextpdf.text.List(com.itextpdf.text.List.ORDERED);
         for (Element sub : subs) {
@@ -23,6 +23,6 @@ public class OrderedListNodeProcessor extends Processor {
                 orderedList.add(listItem);
             }
         }
-        return elements(orderedList);
+        context.append(orderedList);
     }
 }

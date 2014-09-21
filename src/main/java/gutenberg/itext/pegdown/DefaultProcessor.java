@@ -9,7 +9,7 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class DefaultProcessor extends Processor {
-    public List<Element> process(int level, Node node, InvocationContext context) {
-        return context.processChildren(level, node);
+    public void process(int level, Node node, InvocationContext context) {
+        context.processChildren(level, node);
     }
 }

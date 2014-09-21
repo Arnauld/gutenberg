@@ -1,9 +1,32 @@
 package gutenberg.util;
 
+import java.util.TreeMap;
+
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class RomanNumeral {
+
+    final static TreeMap<Integer, String> map = new TreeMap<Integer, String>();
+
+    static {
+
+        map.put(1000, "m");
+        map.put(900, "cm");
+        map.put(500, "d");
+        map.put(400, "cd");
+        map.put(100, "c");
+        map.put(90, "xc");
+        map.put(50, "l");
+        map.put(40, "xl");
+        map.put(10, "x");
+        map.put(9, "ix");
+        map.put(5, "v");
+        map.put(4, "iv");
+        map.put(1, "i");
+
+    }
+
     public String format(int value) {
         if (value <= 0)
             throw new IllegalArgumentException("Negative number not allowed: " + value);
@@ -14,29 +37,10 @@ public class RomanNumeral {
         if (value < 0)
             throw new IllegalArgumentException("Negative number not allowed: " + value);
 
-        switch (value) {
-            case 0:
-                return "";
-            case 1:
-                return "i";
-            case 5:
-                return "v";
-            case 10:
-                return "x";
-            default:
-                if (value <= 5 - 2) {
-                    return raw(value - 1) + raw(1);
-                }
-                if (value <= 5) {
-                    return raw(5 - value) + raw(5);
-                }
-                if (value <= 10 - 2) {
-                    return raw(5) + raw(value - 5);
-                } else if (value <= 10) {
-                    return raw(10 - value) + raw(10);
-                } else {
-                    return raw(10) + raw(value - 10);
-                }
+        int l = map.floorKey(value);
+        if (value == l) {
+            return map.get(value);
         }
+        return map.get(l) + raw(value - l);
     }
 }

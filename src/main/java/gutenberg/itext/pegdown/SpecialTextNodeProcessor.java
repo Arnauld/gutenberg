@@ -13,8 +13,8 @@ import java.util.List;
  */
 public class SpecialTextNodeProcessor extends Processor {
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         SpecialTextNode tNode = (SpecialTextNode) node;
-        return elements(new Chunk(tNode.getText(), context.peekFont()));
+        context.append(new Chunk(tNode.getText(), context.peekFont()));
     }
 }

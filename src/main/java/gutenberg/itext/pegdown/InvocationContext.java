@@ -1,6 +1,5 @@
 package gutenberg.itext.pegdown;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import gutenberg.itext.*;
@@ -8,7 +7,7 @@ import gutenberg.pegdown.References;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.util.Attributes;
-import gutenberg.util.MutableSupplier;
+import gutenberg.util.Collector;
 import gutenberg.util.VariableResolver;
 import org.pegdown.ast.*;
 import org.slf4j.Logger;
@@ -38,10 +37,8 @@ public class InvocationContext {
     private final TreeNavigation treeNavigation;
     // ---
     private Map<Class<?>, Processor> processors;
-    private VariableResolver variableResolver;
     private Attributes[] attributesSeq = new Attributes[20];
     private References references;
-    private MutableSupplier<Sections> sectionsSupplier;
 
     public InvocationContext(ITextContext iTextContext, Styles styles) throws IOException, DocumentException {
         this.iTextContext = iTextContext;
@@ -53,16 +50,8 @@ public class InvocationContext {
         this.fontStack.push(styles.defaultFont());
         this.tableStack = new Stack<TableInfos>();
         this.cellStylerStack = new Stack<CellStyler>();
-        //this.pygments = new PygmentsAdapter(new Pygments(), styleSheet, styles);
-        this.sectionsSupplier = new MutableSupplier<Sections>(new Sections(styles));
-        this.variableResolver = new VariableResolver().declare("image-dir", "/");
         this.treeNavigation = new TreeNavigation();
         this.references = new References();
-    }
-
-    public InvocationContext useSections(Sections sections) {
-        this.sectionsSupplier.set(sections);
-        return this;
     }
 
     public ITextContext iTextContext() {
@@ -74,19 +63,14 @@ public class InvocationContext {
     }
 
     public VariableResolver variableResolver() {
-        return variableResolver;
-    }
-
-    public InvocationContext variableResolver(VariableResolver variableResolver) {
-        this.variableResolver = variableResolver;
-        return this;
+        return iTextContext().variableResolver();
     }
 
     public Chunk symbol(String symbol, float size, BaseColor color) {
         return fontAwesome.symbol(symbol, size, color);
     }
 
-    public List<Element> process(int depth, Node node) {
+    public void process(int depth, Node node) {
         if (depth == 0) {
             references.traverse(node);
         }
@@ -98,15 +82,9 @@ public class InvocationContext {
         treeNavigation.push(node);
 
         dumpProcessor(depth, node, processor);
-        List<Element> elements = processor.process(depth, node, this);
+        processor.process(depth, node, this);
 
         treeNavigation.pop();
-
-        if (depth == 0) {
-            return rebuildChapterSectionTree(elements);
-        } else {
-            return elements;
-        }
     }
 
     private Map<Class<?>, Processor> processors() {
@@ -119,28 +97,6 @@ public class InvocationContext {
 
     public TreeNavigation treeNavigation() {
         return treeNavigation;
-    }
-
-    private List<Element> rebuildChapterSectionTree(List<Element> elements) {
-        List<Element> tree = Lists.newArrayList();
-        Section prev = null;
-        for (Element element : elements) {
-            if (element instanceof Section) {
-                //
-                // Chapter are not added to the document
-                // but section are automatically added on parent section...
-                //
-                if (element instanceof Chapter)
-                    tree.add(element);
-                prev = (Section) element;
-            } else {
-                if (prev != null)
-                    prev.add(element);
-                else
-                    tree.add(element);
-            }
-        }
-        return tree;
     }
 
     private void dumpProcessor(int depth, Node node, Processor processor) {
@@ -178,23 +134,20 @@ public class InvocationContext {
         return b.toString();
     }
 
-    public List<Element> processChildren(int level, Node node) {
-        List<Element> subs = Lists.newArrayList();
+    public void processChildren(int level, Node node) {
         for (Node child : node.getChildren()) {
-            List<Element> elements = process(level + 1, child);
-            // attributes apply on siblings :)
-            if (!(child instanceof AttributesNode)) {
-                Attributes attributes = consumeAttributes(level + 1);
-                applyAttributes(elements, attributes);
-            }
-            subs.addAll(elements);
+            process(level + 1, child);
         }
-        return subs;
     }
 
-    private void applyAttributes(List<Element> elements, Attributes attributes) {
-        for (Element e : elements)
-            applyAttributes(e, attributes);
+    public List<Element> collectChildren(int level, Node node) {
+        Collector<Element> collector = new Collector<Element>();
+        iTextContext().pushElementConsumer(collector);
+        for (Node child : node.getChildren()) {
+            process(level + 1, child);
+        }
+        iTextContext().popElementConsumer();
+        return collector.getCollected();
     }
 
     private void applyAttributes(Element e, Attributes attributes) {
@@ -218,7 +171,7 @@ public class InvocationContext {
         processors.put(OrderedListNode.class, new OrderedListNodeProcessor());
         processors.put(BulletListNode.class, new BulletListNodeProcessor());
         processors.put(ListItemNode.class, new ListItemNodeProcessor());
-        processors.put(HeaderNode.class, new HeaderNodeProcessor(sectionsSupplier));
+        processors.put(HeaderNode.class, new HeaderNodeProcessor());
         processors.put(CodeNode.class, new CodeNodeProcessor(styles));
         processors.put(StrongEmphSuperNode.class, new StrongEmphSuperNodeProcessor());
         processors.put(StrikeNode.class, new StrikeNodeProcessor());
@@ -229,7 +182,7 @@ public class InvocationContext {
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
         processors.put(ExpImageNode.class, new ExpImageNodeProcessor(iTextContext));
-        processors.put(RefImageNode.class, new RefImageNodeProcessor(variableResolver));
+        processors.put(RefImageNode.class, new RefImageNodeProcessor());
         processors.put(AttributesNode.class, new AttributesNodeProcessor());
     }
 
@@ -308,5 +261,31 @@ public class InvocationContext {
         if (level < attributesSeq.length)
             fill(attributesSeq, level, attributesSeq.length, null);
         return map;
+    }
+
+    private Chapter pendingChapter;
+
+    public void append(Element element) {
+        if (element instanceof Chapter) {
+            flushPendingChapter();
+            pendingChapter = ((Chapter) element);
+            iTextContext().sections().restoreChapter(pendingChapter);
+        } else if (element instanceof Section) {
+            // nothing to do
+        } else {
+            iTextContext().append(element);
+        }
+    }
+
+    public void appendAll(Iterable<? extends Element> elements) {
+        for (Element e : elements)
+            append(e);
+    }
+
+    public void flushPendingChapter() {
+        if (pendingChapter != null) {
+            iTextContext().append(pendingChapter);
+        }
+        pendingChapter = null;
     }
 }

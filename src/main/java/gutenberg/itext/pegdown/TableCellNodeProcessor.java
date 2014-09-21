@@ -18,13 +18,13 @@ import java.util.List;
  */
 public class TableCellNodeProcessor extends Processor {
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         TreeNavigation nav = context.treeNavigation();
         boolean isHeaderCell = nav.ancestorTreeMatches(TableCellNode.class, TableRowNode.class, TableHeaderNode.class);
 
         CellStyler cellStyler = context.peekCellStyler();
         context.pushFont(cellStyler.cellFont());
-        List<Element> elements = context.processChildren(level, node);
+        List<Element> elements = context.collectChildren(level, node);
         context.popFont();
 
         Phrase phrase = new Phrase();
@@ -36,7 +36,7 @@ public class TableCellNodeProcessor extends Processor {
         cell.setColspan(colspan);
         cellStyler.applyStyle(cell);
 
-        return elements(cell);
+        context.append(cell);
     }
 
     private PdfPHeaderCell headerCell(Phrase phrase) {

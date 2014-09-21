@@ -15,22 +15,19 @@ import java.util.List;
  */
 public class HeaderNodeProcessor extends Processor {
 
-    private final Supplier<Sections> sectionsSupplier;
-
-    public HeaderNodeProcessor(Supplier<Sections> sectionsSupplier) {
-        this.sectionsSupplier = sectionsSupplier;
+    public HeaderNodeProcessor() {
     }
 
     @Override
-    public List<Element> process(int level, Node node, InvocationContext context) {
+    public void process(int level, Node node, InvocationContext context) {
         HeaderNode hNode = (HeaderNode) node;
         int hLevel = hNode.getLevel();
 
-        Sections sections = sectionsSupplier.get();
+        Sections sections = context.iTextContext().sections();
 
         Font font = sections.sectionTitlePrimaryFont(hLevel);
         context.pushFont(font);
-        List<Element> subs = context.processChildren(level, node);
+        List<Element> subs = context.collectChildren(level, node);
         context.popFont();
 
         Paragraph p = new Paragraph();
@@ -38,6 +35,6 @@ public class HeaderNodeProcessor extends Processor {
         p.addAll(subs);
 
         Element element = sections.newSection(p, hLevel);
-        return elements(element);
+        context.append(element);
     }
 }
