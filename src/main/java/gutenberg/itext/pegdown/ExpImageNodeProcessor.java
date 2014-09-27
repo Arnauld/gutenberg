@@ -32,10 +32,7 @@ public class ExpImageNodeProcessor extends Processor {
 
     private final Logger log = LoggerFactory.getLogger(ExpImageNodeProcessor.class);
 
-    private final ITextContext iTextContext;
-
-    public ExpImageNodeProcessor(ITextContext iTextContext) {
-        this.iTextContext = iTextContext;
+    public ExpImageNodeProcessor() {
     }
 
     @Override
@@ -60,6 +57,8 @@ public class ExpImageNodeProcessor extends Processor {
             log.info("Loading image from URL '{}'", u);
             Image image = Image.getInstance(u);
             image.setAlignment(Image.MIDDLE);
+
+            ITextContext iTextContext = context.iTextContext();
             ITextUtils.adjustOrScaleToFit(image, dim, iTextContext.getDocumentArtBox());
 
             Paragraph p = new Paragraph();

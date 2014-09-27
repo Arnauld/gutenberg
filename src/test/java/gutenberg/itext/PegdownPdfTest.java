@@ -246,6 +246,17 @@ public class PegdownPdfTest {
         process("code_05_latex", "/gutenberg/pegdown/code-05-latex-math.md");
     }
 
+    @Test
+    public void references_02() throws Exception {
+        //
+        // --------------------------------------------------------------------
+        //
+        //
+        //
+        //
+        process("references_02", "/gutenberg/pegdown/references-02.md");
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         process(usecase, resourcePath, Functions.<InvocationContext>identity());
     }

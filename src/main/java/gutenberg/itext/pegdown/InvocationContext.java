@@ -181,8 +181,10 @@ public class InvocationContext {
         processors.put(TableBodyNode.class, new TableBodyNodeProcessor(new DefaultBodyCellStyler(styles)));
         processors.put(TableRowNode.class, new TableRowNodeProcessor());
         processors.put(TableCellNode.class, new TableCellNodeProcessor());
-        processors.put(ExpImageNode.class, new ExpImageNodeProcessor(iTextContext));
+        processors.put(ExpImageNode.class, new ExpImageNodeProcessor());
+        processors.put(ExpLinkNode.class, new ExpLinkNodeProcessor());
         processors.put(RefImageNode.class, new RefImageNodeProcessor());
+        processors.put(RefLinkNode.class, new RefLinkNodeProcessor());
         processors.put(AttributesNode.class, new AttributesNodeProcessor());
     }
 
