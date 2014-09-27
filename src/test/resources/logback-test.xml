@@ -8,7 +8,7 @@
 
     <logger name="gutenberg" level="info"/>
     <logger name="gutenberg.pygments" level="info"/>
-    <logger name="gutenberg.itext.pegdown.InvocationContext" level="debug"/>
+    <logger name="gutenberg.itext.pegdown.InvocationContext" level="info"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>
