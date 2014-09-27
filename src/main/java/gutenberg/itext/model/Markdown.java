@@ -33,16 +33,36 @@ public class Markdown {
 
     public static Markdown from(Reader reader) throws IOException {
         String s = IOUtils.toString(reader);
+        return from(s);
+    }
+
+    public static Markdown from(String s) {
         return new Markdown(s);
     }
 
+
     private final String raw;
+    private final boolean flushChapter;
 
     public Markdown(String raw) {
+        this(raw, false);
+    }
+
+    public Markdown(String raw, boolean flushChapter) {
         this.raw = raw;
+        this.flushChapter = flushChapter;
     }
 
     public String raw() {
         return raw;
     }
+
+    public boolean flushChapter() {
+        return flushChapter;
+    }
+
+    public Markdown flushChapter(boolean flushChapter) {
+        return new Markdown(raw, flushChapter);
+    }
+
 }

@@ -125,6 +125,7 @@ public class HeaderFooter extends PdfPageEventHelper {
         }
 
         Font footerFont = styles.getFontOrDefault(FOOTER_FONT);
+
         Phrase page = new Phrase(pageInfos.getFormattedPageNumber(), footerFont);
         showTextAligned(canvas, Element.ALIGN_RIGHT, page, rect.getRight(), bottom, 0);
     }

@@ -40,9 +40,9 @@ public class InvocationContext {
     private Attributes[] attributesSeq = new Attributes[20];
     private References references;
 
-    public InvocationContext(ITextContext iTextContext, Styles styles) throws IOException, DocumentException {
+    public InvocationContext(ITextContext iTextContext) throws IOException, DocumentException {
         this.iTextContext = iTextContext;
-        this.styles = styles;
+        this.styles = iTextContext.styles();
         // ---
         this.fontAwesome = new FontAwesomeAdapter();
         this.processorDefault = new DefaultProcessor();
@@ -254,22 +254,12 @@ public class InvocationContext {
         return attributesSeq[level];
     }
 
-    @SuppressWarnings("unchecked")
-    private Attributes consumeAttributes(int level) {
-        Attributes map = peekAttributes(level);
-        log.debug(indent(level) + "consuming attributes for level {}; attributes: {}", level, map);
-        if (level < attributesSeq.length)
-            fill(attributesSeq, level, attributesSeq.length, null);
-        return map;
-    }
-
-    private Chapter pendingChapter;
-
     public void append(Element element) {
         if (element instanceof Chapter) {
             flushPendingChapter();
-            pendingChapter = ((Chapter) element);
-            iTextContext().sections().restoreChapter(pendingChapter);
+
+            Chapter pendingChapter = ((Chapter) element);
+            iTextContext().definePendingChapter(pendingChapter);
         } else if (element instanceof Section) {
             // nothing to do
         } else {
@@ -283,9 +273,6 @@ public class InvocationContext {
     }
 
     public void flushPendingChapter() {
-        if (pendingChapter != null) {
-            iTextContext().append(pendingChapter);
-        }
-        pendingChapter = null;
+        iTextContext().flushPendingChapter();
     }
 }

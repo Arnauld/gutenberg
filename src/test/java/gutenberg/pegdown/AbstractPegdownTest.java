@@ -43,6 +43,7 @@ public class AbstractPegdownTest {
 
     protected boolean trace = false;
 
+    @SuppressWarnings("unchecked")
     protected <T> T parse(Rule rule, String input) {
         ParsingResult<?> result;
         if (trace) {
@@ -59,7 +60,6 @@ public class AbstractPegdownTest {
             System.out.println(printNodeTree(result) + '\n');
         }
 
-        //noinspection unchecked
         return (T) result.valueStack.pop();
     }
 }

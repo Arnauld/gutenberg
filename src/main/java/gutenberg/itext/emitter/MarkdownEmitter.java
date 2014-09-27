@@ -8,6 +8,7 @@ import gutenberg.itext.ITextContext;
 import gutenberg.itext.Styles;
 import gutenberg.itext.pegdown.InvocationContext;
 import gutenberg.pegdown.plugin.AttributesPlugin;
+import org.apache.commons.lang3.StringUtils;
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
@@ -28,20 +29,26 @@ public class MarkdownEmitter implements Emitter<Markdown> {
 
     @Override
     public void emit(Markdown value, ITextContext context) {
-        Styles styles = context.styles();
+
+        String raw = value.raw();
+        if(StringUtils.isEmpty(raw)) {
+            return;
+        }
 
         PegDownPlugins plugins = PegDownPlugins
                 .builder()
                 .withPlugin(AttributesPlugin.class)
                 .build();
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
-        RootNode rootNode = processor.parseMarkdown(value.raw().toCharArray());
+        RootNode rootNode = processor.parseMarkdown(raw.toCharArray());
 
         try {
             InvocationContext invocationContext =
-                    new InvocationContext(context, styles);
+                    new InvocationContext(context);
             invocationContext.process(0, rootNode);
-            invocationContext.flushPendingChapter();
+
+            if(value.flushChapter())
+                invocationContext.flushPendingChapter();
         } catch (IOException e) {
             log.error("Fail to generate markdown", e);
             emitRaw(value, context);

@@ -262,7 +262,7 @@ public class PegdownPdfTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
-        InvocationContext context = customizer.apply(new InvocationContext(iTextContext, styles));
+        InvocationContext context = customizer.apply(new InvocationContext(iTextContext));
         if (context == null) {
             fail("No context");
             return;
@@ -288,121 +288,6 @@ public class PegdownPdfTest {
             return IOUtils.toString(stream, "utf8");
         } finally {
             IOUtils.closeQuietly(stream);
-        }
-    }
-
-    /**
-     * Load pdf with an other library that generates it :)
-     */
-    private String extractPdfText(InputStream stream) throws IOException {
-        //return pdfBoxExtractText(stream);
-        return itextExtractText(stream);
-    }
-
-    private String pdfBoxExtractText(InputStream stream) throws IOException {
-        PDDocument pdfDocument = PDDocument.load(stream);
-        try {
-            return new PDFTextStripper().getText(pdfDocument);
-        } finally {
-            pdfDocument.close();
-        }
-    }
-
-    /**
-     *
-     */
-    private void pdfToImage(File fileIn) throws IOException {
-        PDDocument document = PDDocument.load(new FileInputStream(fileIn));
-        int imageType = BufferedImage.TYPE_INT_RGB;
-
-        PDFImageWriter imageWriter = new PDFImageWriter();
-        String password = null;
-        int startPage = 1;
-        int endPage = Integer.MAX_VALUE;
-
-        String pdfFile = fileIn.getAbsolutePath();
-        String outputPrefix = pdfFile.substring(0, pdfFile.lastIndexOf('.'));
-        String imageFormat = "jpg";
-        int resolution = 150;
-
-        boolean success = imageWriter.writeImage(document, imageFormat, password,
-                startPage, endPage, outputPrefix, imageType, resolution);
-        assertThat(success).describedAs("Failed to render pdf as images...").isTrue();
-    }
-
-    /**
-     * Extracts text from a PDF document.
-     *
-     * @param src the original PDF document
-     * @throws IOException
-     */
-    public String itextExtractText(InputStream src) throws IOException {
-        StringWriter writer = new StringWriter();
-        PrintWriter out = new PrintWriter(writer);
-        PdfReader reader = new PdfReader(src);
-        RenderListener listener = new MyTextRenderListener(out);
-        PdfContentStreamProcessor processor = new PdfContentStreamProcessor(listener);
-        PdfDictionary pageDic = reader.getPageN(1);
-        PdfDictionary resourcesDic = pageDic.getAsDict(PdfName.RESOURCES);
-        processor.processContent(ContentByteUtils.getContentBytesForPage(reader, 1), resourcesDic);
-        out.flush();
-        out.close();
-        reader.close();
-        return writer.toString();
-    }
-
-    public class MyTextRenderListener implements RenderListener {
-
-        private PrintWriter out;
-        private int indent = 0;
-
-        public MyTextRenderListener(PrintWriter out) {
-            this.out = out;
-        }
-
-        /**
-         * @see com.itextpdf.text.pdf.parser.RenderListener#beginTextBlock()
-         */
-        public void beginTextBlock() {
-            out.println("<");
-            indent++;
-        }
-
-        /**
-         * @see com.itextpdf.text.pdf.parser.RenderListener#endTextBlock()
-         */
-        public void endTextBlock() {
-            indent--;
-            out.println(">");
-        }
-
-        /**
-         * @see com.itextpdf.text.pdf.parser.RenderListener#renderImage(
-         *com.itextpdf.text.pdf.parser.ImageRenderInfo)
-         */
-        public void renderImage(ImageRenderInfo renderInfo) {
-        }
-
-        /**
-         * @see com.itextpdf.text.pdf.parser.RenderListener#renderText(
-         *com.itextpdf.text.pdf.parser.TextRenderInfo)
-         */
-        public void renderText(TextRenderInfo renderInfo) {
-            out.print(indent());
-            out.print("text: \"");
-            out.print(renderInfo.getText());
-            out.print("\"");
-            out.print(" @ (");
-            out.print(renderInfo.getBaseline().getStartPoint().get(0));
-            out.print(", ");
-            out.print(renderInfo.getBaseline().getStartPoint().get(1));
-            out.print(") length: ");
-            out.print(renderInfo.getBaseline().getLength());
-            out.println();
-        }
-
-        private String indent() {
-            return StringUtils.repeat("  ", indent);
         }
     }
 }

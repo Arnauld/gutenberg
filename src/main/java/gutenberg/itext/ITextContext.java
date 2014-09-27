@@ -25,6 +25,8 @@ import java.util.Stack;
  */
 public class ITextContext {
 
+    public static final Object PENDING_CHAPTER = "pending-chapter";
+
     private Logger log = LoggerFactory.getLogger(ITextContext.class);
 
     private Rectangle pageSize = PageSize.A4;
@@ -102,6 +104,7 @@ public class ITextContext {
     }
 
     public void close() {
+        flushPendingChapter();
         log.info("File generated at {}", fileOut.getAbsolutePath());
         document.close();
     }
@@ -144,6 +147,9 @@ public class ITextContext {
     }
 
     public void append(Element element) {
+        if (element == null)
+            return;
+
         try {
             if (!consumers.isEmpty()) {
                 consumers.peek().consume(element);
@@ -151,9 +157,14 @@ public class ITextContext {
             }
 
             if (element instanceof Chapter) {
+                flushPendingChapter();
                 getDocument().add(element);
                 sections.leaveSection(1);
                 return;
+            }
+
+            if (element instanceof Section) {
+                throw new IllegalStateException("Except chapter, section is automatically added to its parent...");
             }
 
             Section section = sections.currentSection();
@@ -224,7 +235,8 @@ public class ITextContext {
 
     /**
      * Generic placeholder to store a value.
-     * @param key property's key
+     *
+     * @param key   property's key
      * @param value property's value
      */
     public void declare(Object key, Object value) {
@@ -237,11 +249,29 @@ public class ITextContext {
      * @param key property's key
      * @param <T> type the property (inferred)
      * @return property's value if found otherwise <code>null</code>
-     * @see #declare(Object, Object)
      * @throws java.lang.ClassCastException if the property's value is not of the inferred type
+     * @see #declare(Object, Object)
      */
     @SuppressWarnings("unchecked")
     public <T> T get(Object key) {
         return (T) context.get(key);
+    }
+
+    private Chapter pendingChapter;
+
+    public void flushPendingChapter() {
+        if (pendingChapter != null) {
+            try {
+                getDocument().add(pendingChapter);
+            } catch (DocumentException e) {
+                log.warn("Fail to add pending chapter {}", pendingChapter, e);
+            }
+        }
+        pendingChapter = null;
+    }
+
+    public void definePendingChapter(Chapter pendingChapter) {
+        this.pendingChapter = pendingChapter;
+        sections().restoreChapter(pendingChapter);
     }
 }
