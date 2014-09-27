@@ -68,7 +68,14 @@ public class TreeNavigation {
     public static Node lookupChild(Node node, Class<? extends Node>... childClasses) {
         Node child = node;
         for (Class<? extends Node> childClass : childClasses) {
-            child = child.getChildren().get(0);
+            if(child==null)
+                return null;
+
+            List<Node> children = child.getChildren();
+            if(children==null || children.isEmpty())
+                return null;
+
+            child = children.get(0);
             if (!childClass.isInstance(child))
                 return null;
         }
