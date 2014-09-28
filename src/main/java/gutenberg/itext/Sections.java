@@ -62,6 +62,9 @@ public class Sections {
             if (parent == null) {
                 throw new IllegalStateException("No parent section (depth H" + (hLevel - 1) + ") found");
             }
+
+            sectionTitle.setSpacingBefore(20f);
+
             section = parent.addSection(10.0f, sectionTitle);
             sections[hLevel] = section;
         }
