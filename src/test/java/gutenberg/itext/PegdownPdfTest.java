@@ -169,7 +169,7 @@ public class PegdownPdfTest {
                 "          - Or minuses \n" +
                 "          - Or pluses \n" +
                 "            \n");
-        
+
     }
 
     @Test
