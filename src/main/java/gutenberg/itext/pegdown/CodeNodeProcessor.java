@@ -3,15 +3,12 @@ package gutenberg.itext.pegdown;
 import com.google.common.base.Supplier;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import gutenberg.itext.ITextUtils;
 import gutenberg.itext.Styles;
 import org.pegdown.ast.CodeNode;
 import org.pegdown.ast.Node;
-
-import java.util.List;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>

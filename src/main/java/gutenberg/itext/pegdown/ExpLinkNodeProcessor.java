@@ -25,9 +25,9 @@ public class ExpLinkNodeProcessor extends Processor {
         String url = context.variableResolver().resolve(linkNode.url);
 
         Font anchorFont = new FontCopier(context.peekFont())
-                                    .style(Font.UNDERLINE)
-                                    .color(Colors.DARK_RED)
-                                    .get();
+                .style(Font.UNDERLINE)
+                .color(Colors.DARK_RED)
+                .get();
 
         context.pushFont(anchorFont);
         List<Element> subs = context.collectChildren(level, node);

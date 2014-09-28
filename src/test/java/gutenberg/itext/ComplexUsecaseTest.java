@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -51,10 +50,10 @@ public class ComplexUsecaseTest {
     public void case_02__markdown_open_chapter_filled_afterwards() throws IOException, DocumentException {
         File fileOut = new File(new TestSettings().workingDir(), getClass().getSimpleName() + "_case02.pdf");
         context.open(fileOut);
-        for(int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             final int iRef = i;
 
-            context.emit(Markdown.from("# Chapter " + iRef ));
+            context.emit(Markdown.from("# Chapter " + iRef));
             context.emit(new SimpleEmitter() {
                 @Override
                 public void emit(ITextContext context) {
@@ -71,15 +70,18 @@ public class ComplexUsecaseTest {
         assertThat(pages).hasSize(3);
         assertThat(pages.get(0).renderedText()).isEqualTo("" +
                 "          1.  Chapter 0 \n" +
+                "            \n" +
                 "          1.1.  Section0 \n" +
                 "            Salut les gars!0 \n");
         assertThat(pages.get(1).renderedText()).isEqualTo("" +
                 "          2.  Chapter 1 \n" +
+                "            \n" +
                 "          2.1.  Section1 \n" +
                 "            Salut les gars!1 \n" +
                 "                                                                                                            ii \n");
         assertThat(pages.get(2).renderedText()).isEqualTo("" +
                 "          3.  Chapter 2 \n" +
+                "            \n" +
                 "          3.1.  Section2 \n" +
                 "            Salut les gars!2 \n" +
                 "                                                                                                           iii \n");
@@ -89,10 +91,10 @@ public class ComplexUsecaseTest {
     public void case_03__markdown_open_chapter_filled_afterwards_with_nested_markdown() throws IOException, DocumentException {
         File fileOut = new File(new TestSettings().workingDir(), getClass().getSimpleName() + "_case03.pdf");
         context.open(fileOut);
-        for(int i=0; i<3; i++) {
+        for (int i = 0; i < 3; i++) {
             final int iRef = i;
 
-            context.emit(Markdown.from("# Chapter " + iRef ));
+            context.emit(Markdown.from("# Chapter " + iRef));
             context.emit(new SimpleEmitter() {
                 @Override
                 public void emit(ITextContext context) {
@@ -108,12 +110,14 @@ public class ComplexUsecaseTest {
         assertThat(pages).hasSize(3);
         assertThat(pages.get(0).renderedText()).isEqualTo("" +
                 "          1.  Chapter 0 \n" +
+                "            \n" +
                 "          1.1.  Section0 \n" +
                 "              \n" +
                 "            Salut  les gars!   0 \n" +
                 "              \n");
         assertThat(pages.get(1).renderedText()).isEqualTo("" +
                 "          2.  Chapter 1 \n" +
+                "            \n" +
                 "          2.1.  Section1 \n" +
                 "              \n" +
                 "            Salut  les gars!   1 \n" +
@@ -121,6 +125,7 @@ public class ComplexUsecaseTest {
                 "                                                                                                            ii \n");
         assertThat(pages.get(2).renderedText()).isEqualTo("" +
                 "          3.  Chapter 2 \n" +
+                "            \n" +
                 "          3.1.  Section2 \n" +
                 "              \n" +
                 "            Salut  les gars!   2 \n" +

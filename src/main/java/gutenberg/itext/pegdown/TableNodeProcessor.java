@@ -1,6 +1,5 @@
 package gutenberg.itext.pegdown;
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import org.pegdown.ast.Node;
@@ -13,6 +12,9 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class TableNodeProcessor extends Processor {
+
+    public static final Object TABLE_SPACING_BEFORE = "table-spacing-before";
+    public static final Object TABLE_SPACING_AFTER = "table-spacing-after";
 
     private final PdfPTableEvent[] tableEvents;
 
@@ -33,6 +35,11 @@ public class TableNodeProcessor extends Processor {
         context.pushTable(new TableInfos(table, tableNodeColumns));
         context.processChildren(level, node);
         context.popTable();
+
+        Float spacingBefore = context.iTextContext().<Float>getNullable(TABLE_SPACING_BEFORE).or(5f);
+        Float spacingAfter = context.iTextContext().<Float>getNullable(TABLE_SPACING_AFTER).or(5f);
+        table.setSpacingBefore(spacingBefore);
+        table.setSpacingAfter(spacingAfter);
         context.append(table);
     }
 }

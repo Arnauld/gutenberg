@@ -1,19 +1,10 @@
 package gutenberg.itext.pegdown;
 
-import com.itextpdf.text.Anchor;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Phrase;
-import gutenberg.itext.Colors;
-import gutenberg.itext.FontCopier;
 import gutenberg.pegdown.References;
-import org.pegdown.ast.ExpImageNode;
 import org.pegdown.ast.ExpLinkNode;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.RefLinkNode;
 import org.pegdown.ast.TextNode;
-
-import java.util.List;
 
 import static gutenberg.pegdown.TreeNavigation.lookupChild;
 

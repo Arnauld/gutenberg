@@ -1,6 +1,5 @@
 package gutenberg.itext.pegdown;
 
-import com.google.common.base.Supplier;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;

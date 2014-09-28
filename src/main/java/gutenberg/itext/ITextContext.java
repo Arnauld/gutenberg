@@ -1,6 +1,7 @@
 package gutenberg.itext;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -255,6 +256,12 @@ public class ITextContext {
     @SuppressWarnings("unchecked")
     public <T> T get(Object key) {
         return (T) context.get(key);
+    }
+
+    public <T> Optional<T> getNullable(Object key) {
+        if(context.containsKey(key))
+            return Optional.of((T)context.get(key));
+        return Optional.absent();
     }
 
     private Chapter pendingChapter;

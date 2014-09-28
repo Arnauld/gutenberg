@@ -4,24 +4,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.PdfDictionary;
-import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.ContentByteUtils;
-import com.itextpdf.text.pdf.parser.ImageRenderInfo;
-import com.itextpdf.text.pdf.parser.PdfContentStreamProcessor;
-import com.itextpdf.text.pdf.parser.RenderListener;
-import com.itextpdf.text.pdf.parser.TextRenderInfo;
 import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
 import gutenberg.itext.support.ITextContextBuilder;
 import gutenberg.pegdown.plugin.AttributesPlugin;
 import gutenberg.pygments.styles.FriendlyStyle;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.util.PDFImageWriter;
-import org.apache.pdfbox.util.PDFTextStripper;
 import org.junit.Before;
 import org.junit.Test;
 import org.pegdown.Extensions;
@@ -29,8 +17,11 @@ import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
 import org.pegdown.plugins.PegDownPlugins;
 
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,22 +65,31 @@ public class PegdownPdfTest {
         assertThat(pages).hasSize(3);
         assertThat(pages.get(0).renderedText()).isEqualTo("" +
                 "          1.  H1a \n" +
+                "            \n" +
                 "          1.1.  H2a \n");
         assertThat(pages.get(1).renderedText()).isEqualTo("" +
                 "          2.  H1b \n" +
+                "            \n" +
                 "          2.1.  H2b \n" +
+                "              \n" +
                 "            2.1.1.  H3b \n" +
+                "                \n" +
                 "              2.1.1.1.  H4b \n" +
+                "                  \n" +
                 "                2.1.1.1.1.  H5b \n" +
+                "                    \n" +
                 "                  2.1.1.1.1.1.  H6b \n" +
                 "                      \n" +
                 "                    Alternatively, for H1 and H2, an underline-ish style: \n" +
                 "                      \n" +
                 "                                                                                                            ii \n");
+
         assertThat(pages.get(2).renderedText()).isEqualTo("" +
                 "          3.  Alt-H1 \n" +
+                "            \n" +
                 "          3.1.  Alt-H2 \n" +
                 "                                                                                                           iii \n");
+
     }
 
     @Test
@@ -102,6 +102,7 @@ public class PegdownPdfTest {
         assertThat(pages).hasSize(1);
         assertThat(pages.get(0).renderedText()).isEqualTo("" +
                 "          1.  H1a \n" +
+                "            \n" +
                 "          1.1.  H2a \n");
     }
 
@@ -139,10 +140,14 @@ public class PegdownPdfTest {
         assertThat(pages.get(0).renderedText()).isEqualTo("" +
                 "          1. First ordered list item \n" +
                 "          2. Another item \n" +
+                "                \n" +
                 "              - Unordered sub-list. \n" +
+                "                \n" +
                 "          3. Actual numbers don ' t matter, just that it ' s a number \n" +
+                "                \n" +
                 "              1. Ordered sub-list \n" +
                 "              2. Ordered sub-list \n" +
+                "                \n" +
                 "          4. And another item. \n" +
                 "                \n" +
                 "              You can have properly indented paragraphs within list items. Notice the blank line above, and the leading \n" +
@@ -158,9 +163,13 @@ public class PegdownPdfTest {
                 "              If you’d like to add a paragraph in the middle of a list, and have the list numbering continue afterwards, you \n" +
                 "              can indent the paragraph by four spaces. \n" +
                 "                \n" +
+                "            \n" +
+                "            \n" +
                 "          - Unordered list can use asterisks \n" +
                 "          - Or minuses \n" +
-                "          - Or pluses \n");
+                "          - Or pluses \n" +
+                "            \n");
+        
     }
 
     @Test

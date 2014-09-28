@@ -17,6 +17,7 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class TableCellNodeProcessor extends Processor {
+    @SuppressWarnings("unchecked")
     @Override
     public void process(int level, Node node, InvocationContext context) {
         TreeNavigation nav = context.treeNavigation();

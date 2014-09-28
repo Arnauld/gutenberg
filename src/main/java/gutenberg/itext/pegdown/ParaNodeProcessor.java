@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class ParaNodeProcessor extends Processor {
 
+    public static final Object PARAGRAPH_SPACING_BEFORE = "paragraph-spacing-before";
+    public static final Object PARAGRAPH_SPACING_AFTER = "paragraph-spacing-after";
+
     @Override
     public void process(int level, Node node, InvocationContext context) {
         List<Element> subs = context.collectChildren(level, node);
@@ -19,8 +22,11 @@ public class ParaNodeProcessor extends Processor {
         for (Element sub : subs) {
             p.add(discardNewline(sub));
         }
-        p.setSpacingBefore(5);
-        p.setSpacingAfter(5);
+
+        Float spacingBefore = context.iTextContext().<Float>getNullable(PARAGRAPH_SPACING_BEFORE).or(5f);
+        Float spacingAfter = context.iTextContext().<Float>getNullable(PARAGRAPH_SPACING_AFTER).or(5f);
+        p.setSpacingBefore(spacingBefore);
+        p.setSpacingAfter(spacingAfter);
         context.append(p);
     }
 

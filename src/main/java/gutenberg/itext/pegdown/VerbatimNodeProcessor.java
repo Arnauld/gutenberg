@@ -1,13 +1,10 @@
 package gutenberg.itext.pegdown;
 
-import com.itextpdf.text.Element;
 import gutenberg.itext.ITextContext;
 import gutenberg.itext.model.SourceCode;
 import gutenberg.util.Attributes;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.VerbatimNode;
-
-import java.util.List;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>

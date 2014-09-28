@@ -5,7 +5,6 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import gutenberg.pegdown.TreeNavigation;
 import org.pegdown.ast.Node;
-import org.pegdown.ast.TableCellNode;
 import org.pegdown.ast.TableHeaderNode;
 import org.pegdown.ast.TableRowNode;
 
@@ -15,6 +14,7 @@ import java.util.List;
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
  */
 public class TableRowNodeProcessor extends Processor {
+    @SuppressWarnings("unchecked")
     @Override
     public void process(int level, Node node, InvocationContext context) {
         TreeNavigation nav = context.treeNavigation();
@@ -26,7 +26,7 @@ public class TableRowNodeProcessor extends Processor {
         PdfPTable table = tableInfos.getTable();
         int col = 0;
         for (Element element : elements) {
-            PdfPCell cell = (PdfPCell)element;
+            PdfPCell cell = (PdfPCell) element;
             cell.setHorizontalAlignment(tableInfos.columnAlignment(col));
             table.addCell(cell);
 
@@ -34,7 +34,7 @@ public class TableRowNodeProcessor extends Processor {
         }
         table.completeRow();
 
-        if(isHeaderRow) {
+        if (isHeaderRow) {
             int headerRows = table.getHeaderRows();
             table.setHeaderRows(headerRows + 1);
         }

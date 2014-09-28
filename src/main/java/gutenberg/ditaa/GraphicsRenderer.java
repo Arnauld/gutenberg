@@ -28,6 +28,7 @@ public class GraphicsRenderer {
     private Logger log = LoggerFactory.getLogger(GraphicsRenderer.class);
     private Color backgroundColor = Color.WHITE;
 
+    @SuppressWarnings("unchecked")
     public void render(Diagram diagram, Graphics2D g2, RenderingOptions options) {
 
         Object antialiasSetting = RenderingHints.VALUE_ANTIALIAS_OFF;
@@ -40,7 +41,6 @@ public class GraphicsRenderer {
         g2.fillRect(0, 0, diagram.getWidth() + 10, diagram.getHeight() + 10);
         g2.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
 
-        //noinspection unchecked
         ArrayList<DiagramShape> shapes = diagram.getAllDiagramShapes();
 
         log.debug("Rendering " + shapes.size() + " shapes (groups flattened)");
@@ -148,7 +148,6 @@ public class GraphicsRenderer {
         //(BUT this is not possible since tags are applied to all shapes overlaping shapes)
 
 
-        //noinspection unchecked
         Collections.sort(storageShapes, new Shape3DOrderingComparator());
 
         g2.setStroke(normalStroke);
@@ -239,7 +238,6 @@ public class GraphicsRenderer {
         //g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //renderTextLayer(diagram.getTextObjects().iterator());
 
-        //noinspection unchecked
         for (DiagramText text : (Iterable<DiagramText>) diagram.getTextObjects()) {
             g2.setFont(text.getFont());
             if (text.hasOutline()) {
