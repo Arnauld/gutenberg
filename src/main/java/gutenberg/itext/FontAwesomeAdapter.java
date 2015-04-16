@@ -16,7 +16,7 @@ public class FontAwesomeAdapter {
 
     // font/FontAwesome.otf appears twice bigger on windows...
     // webfont seems to look almost the same under windows and macos
-    private static final String FONT_AWESOME_RESOURCE = "font/FontAwesome-webfont.ttf";
+    private static final String FONT_AWESOME_RESOURCE = "font/fontawesome-webfont.ttf";
     private final FontAwesome fontAwesome;
     private final BaseFont baseFont;
 
