@@ -31,7 +31,7 @@ public class ExtensionsCompatibilityPluginTest extends AbstractPegdownTest {
                 .build();
 
         PegDownProcessor processor = new PegDownProcessor(extensions, plugins);
-        RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));

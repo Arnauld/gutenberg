@@ -35,7 +35,7 @@ public class LinkContentPluginTest extends AbstractPegdownTest {
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
         parserRef.set(processor.parser);
 
-        RootNode rootNode = processor.parseMarkdown(markdown.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(markdown).toCharArray());
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(expectedAst));

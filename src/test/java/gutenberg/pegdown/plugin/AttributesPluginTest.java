@@ -27,7 +27,7 @@ public class AttributesPluginTest extends AbstractPegdownTest {
                 .build();
 
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
-        RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));
@@ -44,7 +44,7 @@ public class AttributesPluginTest extends AbstractPegdownTest {
                 .build();
 
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
-        RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));

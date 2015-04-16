@@ -34,7 +34,7 @@ public class PegdownTest extends AbstractPegdownTest {
         String ast = loadResource(astSrc).trim();
 
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL);
-        RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));
@@ -60,9 +60,9 @@ public class PegdownTest extends AbstractPegdownTest {
         String ast = loadResource("table1.ast").trim();
 
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL);
-        RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
 
-        String s = new Dumper(mkd).dump(rootNode).out.toString();
+        String s = new Dumper(normalize(mkd)).dump(rootNode).out.toString();
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));
     }
 
