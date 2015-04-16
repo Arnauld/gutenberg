@@ -222,8 +222,8 @@ public class PegdownPdfTest {
             public InvocationContext apply(InvocationContext invocationContext) {
                 invocationContext
                         .variableResolver()
-                        .declare("imageDir", "file://" + projectDir + "/doc")
-                        .declare("resourcePathAsDir", "file://" + projectDir + "/src/test/resources")
+                        .declare("imageDir", new File(projectDir, "doc").toURI().toString())
+                        .declare("resourcePathAsDir", new File(projectDir, "/src/test/resources").toURI().toString())
                         .declare("resourcePath", "classpath:");
                 return invocationContext;
             }
