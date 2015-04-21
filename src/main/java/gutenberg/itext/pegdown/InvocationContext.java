@@ -76,8 +76,10 @@ public class InvocationContext {
         }
 
         Processor processor = processors().get(node.getClass());
-        if (processor == null)
+        if (processor == null) {
+            log.warn("No processor defined for type {}", node.getClass());
             processor = processorDefault;
+        }
 
         treeNavigation.push(node);
 
@@ -162,6 +164,8 @@ public class InvocationContext {
     }
 
     protected void initProcessors(ITextContext iTextContext, final Styles styles) {
+        processors.put(RootNode.class, new DefaultProcessor());
+        processors.put(AnchorLinkNode.class, new AnchorLinkNodeProcessor());
         processors.put(SimpleNode.class, new SimpleNodeProcessor());
         processors.put(BlockQuoteNode.class, new BlockQuoteNodeProcessor(styles));
         processors.put(ParaNode.class, new ParaNodeProcessor());
