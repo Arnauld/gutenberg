@@ -40,6 +40,9 @@ public class Styles {
     //
     public static final String BLOCKQUOTE_COLOR = "blockquote-color";
 
+    //
+
+    private Map<Object, FontModifier> registeredFontModifiers = Maps.newConcurrentMap();
     private Map<Object, FontDescriptor> registeredFonts = Maps.newConcurrentMap();
     private Map<Object, BaseColor> registeredColors = Maps.newConcurrentMap();
 
@@ -108,18 +111,26 @@ public class Styles {
 
     public Optional<Font> getFont(Object key) {
         FontDescriptor fontDescriptor = registeredFonts.get(key);
+        FontModifier modifier = registeredFontModifiers.get(key);
+        if (modifier == null)
+            modifier = FontModifier.NULL_MODIFIER;
+
         if (fontDescriptor == null)
             return Optional.absent();
         else
-            return Optional.of(fontDescriptor.font());
+            return Optional.of(modifier.apply(fontDescriptor.font()));
     }
 
     public Optional<Font> getFont(Object key, int style, BaseColor color) {
         FontDescriptor fontDescriptor = registeredFonts.get(key);
+        FontModifier modifier = registeredFontModifiers.get(key);
+        if (modifier == null)
+            modifier = FontModifier.NULL_MODIFIER;
+
         if (fontDescriptor == null)
             return Optional.absent();
         else
-            return Optional.of(fontDescriptor.font(style, color));
+            return Optional.of(modifier.apply(fontDescriptor.font(style, color)));
     }
 
     public Font getFontOrDefault(Object key) {
@@ -140,6 +151,10 @@ public class Styles {
 
     public void registerFont(Object key, Font font) {
         registeredFonts.put(key, fontDescriptor(font));
+    }
+
+    public void registerFontModifier(Object key, FontModifier modifier) {
+        registeredFontModifiers.put(key, modifier);
     }
 
     public Optional<BaseColor> getColor(Object key) {
