@@ -75,4 +75,14 @@ public class Attributes {
     public String toString() {
         return "Attributes{" + map + '}';
     }
+
+    public Align getAlign(String key) throws AlignFormatException {
+        Object val = map.get(key);
+        if (val == null)
+            return null;
+        else if (val instanceof String)
+            return new AlignParser().parse((String)val);
+        else
+            return (Align) val;
+    }
 }

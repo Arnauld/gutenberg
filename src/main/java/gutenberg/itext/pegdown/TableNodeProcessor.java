@@ -1,12 +1,21 @@
 package gutenberg.itext.pegdown;
 
+import com.google.common.base.Optional;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
+import gutenberg.pegdown.TreeNavigation;
+import gutenberg.pegdown.plugin.AttributesNode;
+import gutenberg.util.Attributes;
+import gutenberg.util.Dimension;
+import gutenberg.util.DimensionFormatException;
 import org.pegdown.ast.Node;
+import org.pegdown.ast.ParaNode;
 import org.pegdown.ast.TableColumnNode;
 import org.pegdown.ast.TableNode;
 
 import java.util.List;
+
+import static gutenberg.pegdown.TreeNavigation.*;
 
 /**
  * @author <a href="http://twitter.com/aloyer">@aloyer</a>
@@ -36,10 +45,55 @@ public class TableNodeProcessor extends Processor {
         context.processChildren(level, node);
         context.popTable();
 
+
         Float spacingBefore = context.iTextContext().<Float>getNullable(TABLE_SPACING_BEFORE).or(5f);
         Float spacingAfter = context.iTextContext().<Float>getNullable(TABLE_SPACING_AFTER).or(5f);
         table.setSpacingBefore(spacingBefore);
         table.setSpacingAfter(spacingAfter);
+
+        applyAttributes(context, table);
         context.append(table);
+    }
+
+    private void applyAttributes(InvocationContext context, PdfPTable table) {
+        Attributes attributes = lookupAttributes(context);
+        Dimension width = readWidth(attributes);
+        if (width != null) {
+            switch (width.unit()) {
+                case Percent:
+                    table.setWidthPercentage(width.amount());
+                    break;
+                case Px:
+                default:
+                    table.setTotalWidth(width.amount());
+                    break;
+            }
+        }
+    }
+
+    private Attributes lookupAttributes(InvocationContext context) {
+        TreeNavigation nav = context.treeNavigation();
+        Optional<TreeNavigation> attrNode =
+                firstAncestorOfType(TableNode.class)
+                        .then(siblingBefore())
+                        .then(ofType(AttributesNode.class))
+                        .query(nav);
+
+        Attributes attributes;
+        if (attrNode.isPresent()) {
+            attributes = attrNode.get().peek(AttributesNode.class).asAttributes();
+        } else {
+            attributes = new Attributes();
+        }
+        return attributes;
+    }
+
+    private Dimension readWidth(Attributes attributes) {
+        try {
+            return attributes.getDimension("width");
+        } catch (DimensionFormatException e) {
+            log.warn("Unreadable width {}", attributes.getString("width"));
+            return null;
+        }
     }
 }

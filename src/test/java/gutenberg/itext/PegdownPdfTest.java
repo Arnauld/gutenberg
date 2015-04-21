@@ -197,6 +197,23 @@ public class PegdownPdfTest {
     }
 
     @Test
+    public void table_02__with_attributes() throws Exception {
+        process("table_02", "/gutenberg/pegdown/table-02.md");
+
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          Colons can be used to align columns. \n" +
+                "            \n" +
+                "          Tables                                       Are                                          Cool \n" +
+                "          col 3 is                                      right-aligned                                       $1600 \n" +
+                "          col 2 is                                       centered                                          $12 \n" +
+                "          zebra stripes                                  are neat                                            $1 \n");
+    }
+
+    @Test
     public void image_01() throws Exception {
         process("image_01", "/gutenberg/pegdown/image-01.md");
     }
@@ -257,13 +274,25 @@ public class PegdownPdfTest {
 
     @Test
     public void references_02() throws Exception {
-        //
-        // --------------------------------------------------------------------
-        //
-        //
-        //
-        //
         process("references_02", "/gutenberg/pegdown/references-02.md");
+    }
+
+    @Test
+    public void paragraph_02() throws Exception {
+        process("paragraph_02", "/gutenberg/pegdown/paragraph-02.md");
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "                                                    Hello every body \n" +
+                "                                                             \n" +
+                "            \n" +
+                "          How are you? \n" +
+                "            \n" +
+                "            \n" +
+                "                                                                                                      I ' m fine \n" +
+                "                                                                                                              \n");
     }
 
     private void process(String usecase, String resourcePath) throws Exception {
