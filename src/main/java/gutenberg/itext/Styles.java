@@ -118,7 +118,7 @@ public class Styles {
         if (fontDescriptor == null)
             return Optional.absent();
         else
-            return Optional.of(modifier.apply(fontDescriptor.font()));
+            return Optional.of(modifier.modify(fontDescriptor.font()));
     }
 
     public Optional<Font> getFont(Object key, int style, BaseColor color) {
@@ -130,7 +130,7 @@ public class Styles {
         if (fontDescriptor == null)
             return Optional.absent();
         else
-            return Optional.of(modifier.apply(fontDescriptor.font(style, color)));
+            return Optional.of(modifier.modify(fontDescriptor.font(style, color)));
     }
 
     public Font getFontOrDefault(Object key) {

@@ -35,7 +35,7 @@ public class FontCopier extends FontModifier {
     }
 
     public Font get() {
-        return apply(font);
+        return modify(font);
     }
 
     public FontCopier bold() {

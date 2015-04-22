@@ -73,18 +73,14 @@ public class FontModifier {
             throw new IllegalStateException("Modifier frozen!");
     }
 
-    public Font apply(Font font) {
-        if (bold == null
-                && italic == null
-                && style == null
-                && color == null
-                && size == null)
+    public Font modify(Font font) {
+        if (noModifier())
             return font;
 
         int fontStyle = styleOf(font);
         fontStyle = overrideIfNotNull(fontStyle, style);
-        fontStyle = applyModifier(fontStyle, bold, Font.BOLD);
-        fontStyle = applyModifier(fontStyle, italic, Font.ITALIC);
+        fontStyle = applyStyleModifier(fontStyle, bold, Font.BOLD);
+        fontStyle = applyStyleModifier(fontStyle, italic, Font.ITALIC);
 
         return new Font(font.getBaseFont(),
                 val(size, font.getSize()),
@@ -92,7 +88,15 @@ public class FontModifier {
                 val(color, font.getColor()));
     }
 
-    private static int applyModifier(int fontStyle, Boolean mode, int flag) {
+    private boolean noModifier() {
+        return bold == null
+                && italic == null
+                && style == null
+                && color == null
+                && size == null;
+    }
+
+    private static int applyStyleModifier(int fontStyle, Boolean mode, int flag) {
         if (mode == null) {
             return fontStyle;
         }
