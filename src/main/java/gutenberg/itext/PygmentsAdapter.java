@@ -6,13 +6,11 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import gutenberg.itext.model.SourceCode;
-import gutenberg.util.Attributes;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
 import gutenberg.pygments.TokenWithValue;
@@ -34,9 +32,17 @@ public class PygmentsAdapter {
     private final Styles styles;
 
     public PygmentsAdapter(Pygments pygments, StyleSheet styleSheet, Styles styles) {
+        argNotNull("pygments cannot be null", pygments);
+        argNotNull("styleSheet cannot be null", styleSheet);
+        argNotNull("styles cannot be null", styles);
         this.pygments = pygments;
         this.styleSheet = styleSheet;
         this.styles = styles;
+    }
+
+    private void argNotNull(String msg, Object o) {
+        if (o == null)
+            throw new IllegalArgumentException(msg);
     }
 
     public List<Element> process(SourceCode sourceCode) {
@@ -88,7 +94,7 @@ public class PygmentsAdapter {
             float xmax = width[0][1];
             float ymin = height[height.length - 1];
             float ymax = height[0];
-            float d  = 3;
+            float d = 3;
 
             PdfContentByte background = canvas[PdfPTable.BASECANVAS];
             background.saveState();
@@ -98,7 +104,7 @@ public class PygmentsAdapter {
                     ymin - d,
                     (xmax + d) - (xmin - d),
                     (ymax + d) - (ymin - d),
-                    d+d);
+                    d + d);
             background.fill();
             background.restoreState();
         }

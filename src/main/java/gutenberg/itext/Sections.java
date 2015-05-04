@@ -6,6 +6,7 @@ import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
+import gutenberg.util.KeyValues;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +16,15 @@ import java.util.List;
  */
 public class Sections {
 
+    private final KeyValues kvs;
+    private final Styles styles;
+    //
     private int chapterCount = 0;
     private Section[] sections = new Section[10];
     private List<Chapter> chapters = Lists.newArrayList();
-    private Styles styles;
 
-    public Sections(Styles styles) {
+    public Sections(KeyValues kvs, Styles styles) {
+        this.kvs = kvs;
         this.styles = styles;
     }
 

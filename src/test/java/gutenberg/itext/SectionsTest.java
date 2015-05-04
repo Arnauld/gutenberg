@@ -3,6 +3,8 @@ package gutenberg.itext;
 import com.itextpdf.text.Chapter;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Section;
+import gutenberg.util.KeyValues;
+import gutenberg.util.SimpleKeyValues;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,11 +14,13 @@ public class SectionsTest {
 
     private Styles styles;
     private Sections sections;
+    private KeyValues kvs;
 
     @Before
     public void setUp() {
+        kvs = new SimpleKeyValues();
         styles = new Styles().initDefaults();
-        sections = new Sections(styles);
+        sections = new Sections(kvs, styles);
     }
 
     @Test

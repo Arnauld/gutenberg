@@ -6,7 +6,12 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
-import gutenberg.util.*;
+import gutenberg.util.Align;
+import gutenberg.util.AlignFormatException;
+import gutenberg.util.Attributes;
+import gutenberg.util.Dimension;
+import gutenberg.util.DimensionFormatException;
+import gutenberg.util.KeyValues;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.ParaNode;
 
@@ -30,8 +35,10 @@ public class ParaNodeProcessor extends Processor {
             p.add(discardNewline(sub));
         }
 
-        Float spacingBefore = context.iTextContext().<Float>getNullable(PARAGRAPH_SPACING_BEFORE).or(5f);
-        Float spacingAfter = context.iTextContext().<Float>getNullable(PARAGRAPH_SPACING_AFTER).or(5f);
+        KeyValues kvs = context.iTextContext().keyValues();
+
+        Float spacingBefore = kvs.<Float>getNullable(PARAGRAPH_SPACING_BEFORE).or(5f);
+        Float spacingAfter = kvs.<Float>getNullable(PARAGRAPH_SPACING_AFTER).or(5f);
         p.setSpacingBefore(spacingBefore);
         p.setSpacingAfter(spacingAfter);
 

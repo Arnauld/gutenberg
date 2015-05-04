@@ -8,8 +8,8 @@ import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.util.Attributes;
 import gutenberg.util.Dimension;
 import gutenberg.util.DimensionFormatException;
+import gutenberg.util.KeyValues;
 import org.pegdown.ast.Node;
-import org.pegdown.ast.ParaNode;
 import org.pegdown.ast.TableColumnNode;
 import org.pegdown.ast.TableNode;
 
@@ -46,8 +46,10 @@ public class TableNodeProcessor extends Processor {
         context.popTable();
 
 
-        Float spacingBefore = context.iTextContext().<Float>getNullable(TABLE_SPACING_BEFORE).or(5f);
-        Float spacingAfter = context.iTextContext().<Float>getNullable(TABLE_SPACING_AFTER).or(5f);
+        KeyValues kvs = context.iTextContext().keyValues();
+
+        Float spacingBefore = kvs.<Float>getNullable(TABLE_SPACING_BEFORE).or(5f);
+        Float spacingAfter = kvs.<Float>getNullable(TABLE_SPACING_AFTER).or(5f);
         table.setSpacingBefore(spacingBefore);
         table.setSpacingAfter(spacingAfter);
 

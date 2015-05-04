@@ -1,12 +1,12 @@
 package gutenberg.itext;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import gutenberg.util.Collector;
 import gutenberg.util.Consumer;
+import gutenberg.util.KeyValues;
 import gutenberg.util.Margin;
 import gutenberg.util.New;
 import gutenberg.util.VariableResolver;
@@ -26,34 +26,47 @@ import java.util.Stack;
  */
 public class ITextContext {
 
-    public static final Object PENDING_CHAPTER = "pending-chapter";
-
     private Logger log = LoggerFactory.getLogger(ITextContext.class);
 
     private Rectangle pageSize = PageSize.A4;
-    private Margin documentMargin = new Margin(50);
+    private Margin documentMargin;
     //
     private Document document;
     private File fileOut;
     private PdfWriter pdfWriter;
     //
+    //
     private PageNumber pageNumber;
     private TableOfContents tableOfContents;
+    private Chapter pendingChapter;
+    //
+    private final KeyValues keyValues;
     private final Sections sections;
     private final Styles styles;
     //
-    private final Map<Object, Object> context = Maps.newHashMap();
     private final Stack<Consumer<Element>> consumers = New.newStack();
     private final Map<Object, Emitter> registeredEmitters = Maps.newConcurrentMap();
 
-    //
-    private Function<PageInfos, Phrase> header;
-    private Function<PageInfos, Phrase> footer;
-    private VariableResolver variableResolver = new VariableResolver();
+    private final VariableResolver variableResolver = new VariableResolver();
 
-    public ITextContext(Sections sections, Styles styles) {
-        this.sections = sections;
+    public ITextContext(KeyValues keyValues, Styles styles) {
+        this(keyValues, styles, new Margin(50));
+    }
+
+    public ITextContext(KeyValues keyValues, Styles styles, Margin documentMargin) {
+        if (keyValues == null)
+            throw new IllegalArgumentException("KeyValues cannot be null");
+        if (styles == null)
+            throw new IllegalArgumentException("Styles cannot be null");
+
+        this.keyValues = keyValues;
+        this.sections = new Sections(keyValues, styles);
         this.styles = styles;
+        this.documentMargin = (documentMargin == null) ? new Margin(50) : documentMargin;
+    }
+
+    public KeyValues keyValues() {
+        return keyValues;
     }
 
     public VariableResolver variableResolver() {
@@ -81,8 +94,9 @@ public class ITextContext {
         this.fileOut = fileOut;
         this.pageNumber = new PageNumber();
         this.tableOfContents = new TableOfContents(pageNumber);
-        this.header = constant(new Phrase(""));
-        this.footer = constant(new Phrase(""));
+
+        Function<PageInfos, Phrase> header = constant(new Phrase(""));
+        Function<PageInfos, Phrase> footer = constant(new Phrase(""));
 
         OutputStream outStream = new FileOutputStream(fileOut);
         this.pdfWriter = PdfWriter.getInstance(document, outStream);
@@ -233,38 +247,6 @@ public class ITextContext {
         return elementCollector.getCollected();
 
     }
-
-    /**
-     * Generic placeholder to store a value.
-     *
-     * @param key   property's key
-     * @param value property's value
-     */
-    public void declare(Object key, Object value) {
-        context.put(key, value);
-    }
-
-    /**
-     * Retrieve the value declared for the key.
-     *
-     * @param key property's key
-     * @param <T> type the property (inferred)
-     * @return property's value if found otherwise <code>null</code>
-     * @throws java.lang.ClassCastException if the property's value is not of the inferred type
-     * @see #declare(Object, Object)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T get(Object key) {
-        return (T) context.get(key);
-    }
-
-    public <T> Optional<T> getNullable(Object key) {
-        if(context.containsKey(key))
-            return Optional.of((T)context.get(key));
-        return Optional.absent();
-    }
-
-    private Chapter pendingChapter;
 
     public void flushPendingChapter() {
         if (pendingChapter != null) {

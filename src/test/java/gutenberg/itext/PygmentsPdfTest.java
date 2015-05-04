@@ -12,6 +12,8 @@ import gutenberg.pygments.styles.DefaultStyle;
 import gutenberg.pygments.styles.FriendlyStyle;
 import gutenberg.pygments.styles.MonokaiStyle;
 import gutenberg.pygments.styles.SolarizedDarkStyle;
+import gutenberg.util.KeyValues;
+import gutenberg.util.SimpleKeyValues;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,11 +29,13 @@ public class PygmentsPdfTest {
 
     private String workingDir;
     private Styles styles;
+    private KeyValues kvs;
 
     @Before
     public void setUp() throws IOException, DocumentException {
         workingDir = new TestSettings().workingDir();
         styles = new Styles().initDefaults();
+        kvs = new SimpleKeyValues();
     }
 
     @Test
@@ -158,7 +162,7 @@ public class PygmentsPdfTest {
 
     private ITextContext openDocument(String method) throws FileNotFoundException, DocumentException {
         File file = new File(workingDir, getClass().getSimpleName() + "_" + method + ".pdf");
-        return new ITextContext(new Sections(styles), styles).open(file);
+        return new ITextContext(kvs, styles).open(file);
     }
 
 }

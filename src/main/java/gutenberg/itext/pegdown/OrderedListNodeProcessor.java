@@ -3,6 +3,7 @@ package gutenberg.itext.pegdown;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
+import gutenberg.util.KeyValues;
 import org.pegdown.ast.Node;
 
 import java.util.List;
@@ -28,8 +29,10 @@ public class OrderedListNodeProcessor extends Processor {
             }
         }
 
-        Float spacingBefore = context.iTextContext().<Float>getNullable(ORDERED_LIST_SPACING_BEFORE).or(5f);
-        Float spacingAfter = context.iTextContext().<Float>getNullable(ORDERED_LIST_SPACING_AFTER).or(5f);
+        KeyValues kvs = context.iTextContext().keyValues();
+
+        Float spacingBefore = kvs.<Float>getNullable(ORDERED_LIST_SPACING_BEFORE).or(5f);
+        Float spacingAfter = kvs.<Float>getNullable(ORDERED_LIST_SPACING_AFTER).or(5f);
 
         Paragraph p = new Paragraph();
         p.add(orderedList);
