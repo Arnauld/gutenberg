@@ -5,10 +5,12 @@ import gutenberg.itext.ITextContext;
 import gutenberg.itext.PygmentsAdapter;
 import gutenberg.itext.Styles;
 import gutenberg.itext.emitter.MarkdownEmitter;
+import gutenberg.itext.emitter.RichTextEmitter;
 import gutenberg.itext.emitter.SourceCodeDitaaExtension;
 import gutenberg.itext.emitter.SourceCodeEmitter;
 import gutenberg.itext.emitter.SourceCodeLaTeXExtension;
 import gutenberg.itext.model.Markdown;
+import gutenberg.itext.model.RichText;
 import gutenberg.itext.model.SourceCode;
 import gutenberg.pygments.Pygments;
 import gutenberg.pygments.StyleSheet;
@@ -72,6 +74,7 @@ public class ITextContextBuilder {
                         new SourceCodeDitaaExtension(getPygmentsAdapter()),
                         new SourceCodeLaTeXExtension(getPygmentsAdapter())));
         context.register(Markdown.class, new MarkdownEmitter());
+        context.register(RichText.class, new RichTextEmitter());
     }
 
     protected PygmentsAdapter getPygmentsAdapter() {

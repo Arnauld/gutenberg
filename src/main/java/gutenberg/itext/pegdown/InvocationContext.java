@@ -196,6 +196,14 @@ public class InvocationContext {
         return fontStack.peek();
     }
 
+    public Font peekSymbolFont() {
+        return adjustWithStyles(styles.getSymbolFont(), peekFont());
+    }
+
+    private Font adjustWithStyles(Font fontToAdjust, Font ref) {
+        return new FontCopier(fontToAdjust).color(ref.getColor()).get();
+    }
+
     public void pushFont(Font font) {
         fontStack.push(font);
     }

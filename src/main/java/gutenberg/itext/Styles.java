@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.itextpdf.text.FontFactory.HELVETICA;
+import static com.itextpdf.text.FontFactory.SYMBOL;
 import static gutenberg.itext.FontDescriptor.fontDescriptor;
 import static gutenberg.itext.ITextUtils.inconsolata;
 
@@ -140,6 +141,27 @@ public class Styles {
         else
             return defaultFont();
     }
+
+    private BaseFont symbolFont;
+
+    public Font getSymbolFont() {
+        Optional<Font> fontOpt = getFont(SYMBOL);
+        if (fontOpt.isPresent())
+            return fontOpt.get();
+        else {
+            if (symbolFont == null) {
+                try {
+                    symbolFont = BaseFont.createFont("font/DejaVuSansMono.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                } catch (DocumentException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return new Font(symbolFont, defaultFontSize(), Font.NORMAL, defaultColor());
+        }
+    }
+
 
     public Font getFontOrDefault(Object key, int style, BaseColor color) {
         Optional<Font> fontOpt = getFont(key, style, color);

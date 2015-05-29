@@ -2,7 +2,6 @@ package gutenberg.itext;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
@@ -90,6 +89,11 @@ public class PegdownPdfTest {
                 "          3.1.  Alt-H2 \n" +
                 "                                                                                                           iii \n");
 
+    }
+
+    @Test
+    public void unicode_chars() throws Exception {
+        process("unicode_chars_01", "/gutenberg/pegdown/unicode-chars-01.md");
     }
 
     @Test
@@ -263,6 +267,22 @@ public class PegdownPdfTest {
     }
 
     @Test
+    public void code_03b_ditaa() throws Exception {
+        processString("code_03b_ditaa", "\n" +
+                "```ditaa\n" +
+                "                                                             +-------------+\n" +
+                "                                                     /------ | Market Book |\n" +
+                "/--------------\\     submit order  /-------------\\   |       +-------------+\n" +
+                "| Electronic   | ----------------> | Transaction |---/              .\n" +
+                "| Trading      |                   | Router      |------ ...        .\n" +
+                "| Network cBLK | <---------------- |             |---\\              .\n" +
+                "\\--------------/   order status    \\-------------/   |       +-------------+\n" +
+                "                                                     \\-------| Market Book |\n" +
+                "                                                             +-------------+\n" +
+                "```\n", Functions.<InvocationContext>identity());
+    }
+
+    @Test
     public void code_04_uml() throws Exception {
         process("code_04_uml", "/gutenberg/pegdown/code-04-uml.md");
     }
@@ -300,9 +320,12 @@ public class PegdownPdfTest {
     }
 
     private void process(String usecase, String resourcePath, Function<InvocationContext, InvocationContext> customizer) throws Exception {
-        ITextContext iTextContext = openDocument(usecase);
-        Document document = iTextContext.getDocument();
         String mkd = loadResource(resourcePath).trim();
+        processString(usecase, mkd, customizer);
+    }
+
+    private void processString(String usecase, String mkd, Function<InvocationContext, InvocationContext> customizer) throws Exception {
+        ITextContext iTextContext = openDocument(usecase);
 
         PegDownPlugins plugins = PegDownPlugins
                 .builder()
@@ -331,10 +354,14 @@ public class PegdownPdfTest {
                 .open(fileOut);
     }
 
-    protected String loadResource(String resourceName) throws IOException {
+    protected String loadResource(String resourceName) {
         InputStream stream = getClass().getResourceAsStream(resourceName);
+        if(stream==null)
+            throw new IllegalArgumentException("Resource not found: " + resourceName);
         try {
             return IOUtils.toString(stream, "utf8");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open resource " + resourceName, e);
         } finally {
             IOUtils.closeQuietly(stream);
         }
