@@ -145,7 +145,7 @@ public class PegdownPdfTest {
                 "          1. First ordered list item \n" +
                 "          2. Another item \n" +
                 "                \n" +
-                "              - Unordered sub-list. \n" +
+                "              •  Unordered sub-list. \n" +
                 "                \n" +
                 "          3. Actual numbers don ' t matter, just that it ' s a number \n" +
                 "                \n" +
@@ -169,9 +169,9 @@ public class PegdownPdfTest {
                 "                \n" +
                 "            \n" +
                 "            \n" +
-                "          - Unordered list can use asterisks \n" +
-                "          - Or minuses \n" +
-                "          - Or pluses \n" +
+                "          •  Unordered list can use asterisks \n" +
+                "          •  Or minuses \n" +
+                "          •  Or pluses \n" +
                 "            \n");
 
     }

@@ -35,7 +35,6 @@ public class SourceCodeEmitter implements Emitter<SourceCode> {
     @Override
     public void emit(SourceCode sourceCode, ITextContext context) {
         String lang = sourceCode.lang();
-        String content = sourceCode.content();
 
         try {
             for (SourceCodeEmitterExtension extension : extensions) {

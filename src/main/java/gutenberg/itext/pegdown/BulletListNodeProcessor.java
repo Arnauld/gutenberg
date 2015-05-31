@@ -1,8 +1,12 @@
 package gutenberg.itext.pegdown;
 
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
+import gutenberg.itext.FontCopier;
+import gutenberg.itext.ITextContext;
 import gutenberg.util.KeyValues;
 import org.pegdown.ast.Node;
 
@@ -20,6 +24,7 @@ public class BulletListNodeProcessor extends Processor {
         List<Element> subs = context.collectChildren(level, node);
 
         com.itextpdf.text.List orderedList = new com.itextpdf.text.List(com.itextpdf.text.List.UNORDERED);
+        orderedList.setListSymbol(context.bulletSymbol());
         for (Element sub : subs) {
             if (!orderedList.add(sub)) {
                 // wrap it

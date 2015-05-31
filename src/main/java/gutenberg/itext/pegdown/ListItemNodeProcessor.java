@@ -48,13 +48,8 @@ public class ListItemNodeProcessor extends Processor {
 
         ListItem item = new ListItem(p);
         item.add(subList);
-        //item.setListSymbol(bulletSymbol());
 
         context.append(item);
     }
 
-    private static Chunk bulletSymbol() {
-        return new Chunk(String.valueOf((char) 108),
-                FontFactory.getFont(FontFactory.ZAPFDINGBATS, 10, BaseColor.GRAY));
-    }
 }

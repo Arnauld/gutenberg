@@ -3,6 +3,7 @@ package gutenberg.itext;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.itextpdf.text.FontFactory.HELVETICA;
-import static com.itextpdf.text.FontFactory.SYMBOL;
 import static gutenberg.itext.FontDescriptor.fontDescriptor;
 import static gutenberg.itext.ITextUtils.inconsolata;
 
@@ -24,6 +24,7 @@ public class Styles {
     public static final String DEFAULT_FONT = "default-font";
     //
     public static final String CODE_FONT = "code-font";
+    public static final String SYMBOL_FONT = "symbol-font";
     //
     public static final String INLINE_CODE_FONT = "inline-code-font";
     public static final String INLINE_CODE_BACKGROUND = "inline-code-background";
@@ -46,6 +47,8 @@ public class Styles {
     private Map<Object, FontModifier> registeredFontModifiers = Maps.newConcurrentMap();
     private Map<Object, FontDescriptor> registeredFonts = Maps.newConcurrentMap();
     private Map<Object, BaseColor> registeredColors = Maps.newConcurrentMap();
+    private BaseFont symbolFont;
+    private Chunk bulletSymbol;
 
     public Styles initDefaults() {
         FontDescriptor defaultFont = fontDescriptor(defaultFontName(), defaultFontSize(), Font.NORMAL, BaseColor.BLACK);
@@ -142,26 +145,21 @@ public class Styles {
             return defaultFont();
     }
 
-    private BaseFont symbolFont;
-
     public Font getSymbolFont() {
-        Optional<Font> fontOpt = getFont(SYMBOL);
+        Optional<Font> fontOpt = getFont(SYMBOL_FONT);
         if (fontOpt.isPresent())
             return fontOpt.get();
-        else {
-            if (symbolFont == null) {
-                try {
-                    symbolFont = BaseFont.createFont("font/DejaVuSansMono.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                } catch (DocumentException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+        else if (symbolFont == null) {
+            try {
+                symbolFont = ITextUtils.dejavuSansMono();
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            return new Font(symbolFont, defaultFontSize(), Font.NORMAL, defaultColor());
         }
+        return new Font(symbolFont, defaultFontSize(), Font.NORMAL, defaultColor());
     }
-
 
     public Font getFontOrDefault(Object key, int style, BaseColor color) {
         Optional<Font> fontOpt = getFont(key, style, color);
@@ -199,4 +197,9 @@ public class Styles {
         registeredColors.put(key, color);
     }
 
+    public Chunk bulletSymbol() {
+        if(bulletSymbol==null)
+            bulletSymbol = new Chunk("• ", new FontCopier(getSymbolFont()).size(10f).get());
+        return bulletSymbol;
+    }
 }

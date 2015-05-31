@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
+import gutenberg.itext.ITextUtils;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
 import gutenberg.util.Align;
@@ -50,20 +51,7 @@ public class ParaNodeProcessor extends Processor {
     private void applyAttributes(InvocationContext context, Paragraph p) {
         Attributes attributes = lookupAttributes(context);
         Align align = readAlign(attributes);
-        if (align != null) {
-            switch (align) {
-                case Center:
-                    p.setAlignment(Element.ALIGN_CENTER);
-                    break;
-                case Right:
-                    p.setAlignment(Element.ALIGN_RIGHT);
-                    break;
-                case Left:
-                default:
-                    p.setAlignment(Element.ALIGN_LEFT);
-                    break;
-            }
-        }
+        ITextUtils.applyAlign(p, align);
     }
 
     private static Element discardNewline(Element sub) {

@@ -197,11 +197,7 @@ public class InvocationContext {
     }
 
     public Font peekSymbolFont() {
-        return adjustWithStyles(styles.getSymbolFont(), peekFont());
-    }
-
-    private Font adjustWithStyles(Font fontToAdjust, Font ref) {
-        return new FontCopier(fontToAdjust).color(ref.getColor()).get();
+        return ITextUtils.adjustWithStyles(styles.getSymbolFont(), peekFont());
     }
 
     public void pushFont(Font font) {
@@ -288,5 +284,9 @@ public class InvocationContext {
 
     public void flushPendingChapter() {
         iTextContext().flushPendingChapter();
+    }
+
+    public Chunk bulletSymbol() {
+        return iTextContext().styles().bulletSymbol();
     }
 }
