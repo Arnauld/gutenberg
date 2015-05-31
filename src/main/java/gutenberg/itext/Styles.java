@@ -40,6 +40,7 @@ public class Styles {
     public static final String TABLE_BODY_FONT = "table-body-font";
     public static final String TABLE_BODY_CELL_BORDER_COLOR = "table-body-cell-border";
     //
+    public static final String GENERIC_SYMBOL_COLOR = "genericsymbol-color";
     public static final String BLOCKQUOTE_COLOR = "blockquote-color";
 
     //

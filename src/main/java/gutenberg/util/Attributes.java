@@ -66,7 +66,7 @@ public class Attributes {
         if (val == null)
             return null;
         else if (val instanceof String)
-            return new DimensionParser().parse((String)val);
+            return new DimensionParser().parse((String) val);
         else
             return (Dimension) val;
     }
@@ -81,8 +81,18 @@ public class Attributes {
         if (val == null)
             return null;
         else if (val instanceof String)
-            return new AlignParser().parse((String)val);
+            return new AlignParser().parse((String) val);
         else
             return (Align) val;
+    }
+
+    public RGB getRGB(String key) throws RGBFormatException {
+        Object val = map.get(key);
+        if (val == null)
+            return null;
+        else if (val instanceof String)
+            return new RGBParser().parse((String) val);
+        else
+            return (RGB) val;
     }
 }

@@ -6,6 +6,7 @@ import gutenberg.itext.*;
 import gutenberg.pegdown.References;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
+import gutenberg.pegdown.plugin.GenericBoxNode;
 import gutenberg.util.Attributes;
 import gutenberg.util.Collector;
 import gutenberg.util.VariableResolver;
@@ -190,6 +191,7 @@ public class InvocationContext {
         processors.put(RefImageNode.class, new RefImageNodeProcessor());
         processors.put(RefLinkNode.class, new RefLinkNodeProcessor());
         processors.put(AttributesNode.class, new AttributesNodeProcessor());
+        processors.put(GenericBoxNode.class, new GenericBoxNodeProcessor());
     }
 
     public Font peekFont() {

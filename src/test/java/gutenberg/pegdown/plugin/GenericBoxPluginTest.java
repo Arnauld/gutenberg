@@ -48,6 +48,7 @@ public class GenericBoxPluginTest extends AbstractPegdownTest {
         RootNode rootNode = processor.parseMarkdown(normalize(markdown).toCharArray());
 
         String s = dumpAST(rootNode);
+        System.out.println("GenericBoxPluginTest.check::" + s);
         assertThat(normalize(s.trim())).isEqualTo(normalize(expectedAst));
     }
 

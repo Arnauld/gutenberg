@@ -27,6 +27,8 @@ public class FontAwesomeAdapter {
 
     public Chunk symbol(String name, float size, BaseColor fg) {
         String s = fontAwesome.get(name);
+        if(s==null)
+            throw new IllegalArgumentException("Unrecognized symbol '" + name + "'");
         return new Chunk(s, new Font(baseFont, size, Font.NORMAL, fg));
     }
 

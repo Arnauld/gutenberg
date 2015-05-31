@@ -50,8 +50,7 @@ public class ParaNodeProcessor extends Processor {
 
     private void applyAttributes(InvocationContext context, Paragraph p) {
         Attributes attributes = lookupAttributes(context);
-        Align align = readAlign(attributes);
-        ITextUtils.applyAlign(p, align);
+        ITextUtils.applyAttributes(p, attributes);
     }
 
     private static Element discardNewline(Element sub) {
@@ -81,21 +80,4 @@ public class ParaNodeProcessor extends Processor {
         return attributes;
     }
 
-    private Dimension readWidth(Attributes attributes) {
-        try {
-            return attributes.getDimension("width");
-        } catch (DimensionFormatException e) {
-            log.warn("Unreadable width {}", attributes.getString("width"));
-            return null;
-        }
-    }
-
-    private Align readAlign(Attributes attributes) {
-        try {
-            return attributes.getAlign("align");
-        } catch (AlignFormatException e) {
-            log.warn("Unreadable align {}", attributes.getString("align"));
-            return null;
-        }
-    }
 }

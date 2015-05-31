@@ -7,11 +7,14 @@ import gutenberg.TestSettings;
 import gutenberg.itext.pegdown.InvocationContext;
 import gutenberg.itext.support.ITextContextBuilder;
 import gutenberg.pegdown.plugin.AttributesPlugin;
+import gutenberg.pegdown.plugin.GenericBoxPlugin;
 import gutenberg.pygments.styles.FriendlyStyle;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.parboiled.common.Reference;
 import org.pegdown.Extensions;
+import org.pegdown.Parser;
 import org.pegdown.PegDownProcessor;
 import org.pegdown.ast.RootNode;
 import org.pegdown.plugins.PegDownPlugins;
@@ -315,6 +318,12 @@ public class PegdownPdfTest {
                 "                                                                                                              \n");
     }
 
+    @Test
+    public void genericBox_01 () throws Exception {
+        process("genericBox_01", "/gutenberg/pegdown/genericBox-01-with-attributesText.md");
+
+    }
+
     private void process(String usecase, String resourcePath) throws Exception {
         process(usecase, resourcePath, Functions.<InvocationContext>identity());
     }
@@ -325,13 +334,17 @@ public class PegdownPdfTest {
     }
 
     private void processString(String usecase, String mkd, Function<InvocationContext, InvocationContext> customizer) throws Exception {
+        Reference<Parser> parserRef = new Reference<Parser>();
         ITextContext iTextContext = openDocument(usecase);
 
         PegDownPlugins plugins = PegDownPlugins
                 .builder()
                 .withPlugin(AttributesPlugin.class)
+                .withPlugin(GenericBoxPlugin.class, parserRef)
                 .build();
         PegDownProcessor processor = new PegDownProcessor(Extensions.ALL, plugins);
+        parserRef.set(processor.parser);
+
         RootNode rootNode = processor.parseMarkdown(mkd.toCharArray());
 
         InvocationContext context = customizer.apply(new InvocationContext(iTextContext));
