@@ -116,7 +116,8 @@ public class ITextUtils {
 
     public static void applyWidth(Paragraph table, Attributes attrs) {
         Dimension dim = readWidth(attrs);
-        log.warn("Paragraphe width is not supported ({})", dim);
+        if (dim != null)
+            log.warn("Paragraphe width is not supported ({})", dim);
     }
 
 
