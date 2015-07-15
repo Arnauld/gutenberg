@@ -56,10 +56,16 @@ public class SimpleNodeProcessor extends Processor {
                 context.append(p);
                 return;
             case Linebreak:
-                context.append(new Chunk("\n"));
+                int len = tNode.getEndIndex() - tNode.getStartIndex();
+                StringBuilder b = new StringBuilder();
+                for(int i=0;i<(len - 1);i++) {
+                    b.append(' ');
+                }
+                b.append('\n');
+                context.append(new Chunk(b.toString()));
                 return;
             case Nbsp:
-                context.append(new Chunk("'\u00a0"));
+                context.append(new Chunk("\u00a0"));
                 return;
             default:
                 log.warn("Unsupported type '{}'", type);

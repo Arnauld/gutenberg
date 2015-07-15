@@ -7,11 +7,7 @@ import com.itextpdf.text.Paragraph;
 import gutenberg.itext.ITextUtils;
 import gutenberg.pegdown.TreeNavigation;
 import gutenberg.pegdown.plugin.AttributesNode;
-import gutenberg.util.Align;
-import gutenberg.util.AlignFormatException;
 import gutenberg.util.Attributes;
-import gutenberg.util.Dimension;
-import gutenberg.util.DimensionFormatException;
 import gutenberg.util.KeyValues;
 import org.pegdown.ast.Node;
 import org.pegdown.ast.ParaNode;
@@ -56,7 +52,8 @@ public class ParaNodeProcessor extends Processor {
     private static Element discardNewline(Element sub) {
         if (sub instanceof Chunk) {
             Chunk c = (Chunk) sub;
-            if (c.getContent().equals("\n")) {
+            String content = c.getContent();
+            if (content.endsWith("\n") && content.length() < 2) {
                 return new Chunk(" ");
             }
         }

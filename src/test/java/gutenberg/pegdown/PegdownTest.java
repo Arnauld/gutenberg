@@ -51,7 +51,6 @@ public class PegdownTest extends AbstractPegdownTest {
 
         String s = dumpAST(rootNode);
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));
-
     }
 
     @Test
@@ -64,6 +63,40 @@ public class PegdownTest extends AbstractPegdownTest {
 
         String s = new Dumper(normalize(mkd)).dump(rootNode).out.toString();
         assertThat(normalize(s.trim())).isEqualTo(normalize(ast));
+    }
+
+    @Test
+    public void line_break_within_paragraph() throws Exception {
+        String mkd = "" +
+                "Two empty space at the end of the line  \n" +
+                "should act as a new line in the paragraph\n" +
+                "\n" +
+                "This should be an other paragraph...\n" +
+                "but with no space at the end of the line\n" +
+                "\n" +
+                "\n" +
+                "And yet another one";
+
+        PegDownProcessor processor = new PegDownProcessor(Extensions.ALL);
+        RootNode rootNode = processor.parseMarkdown(normalize(mkd).toCharArray());
+
+        String s = new Dumper(normalize(mkd)).dump(rootNode).out.toString();
+        assertThat(normalize(s.trim())).isEqualTo(normalize("" +
+                "RootNode [0-185]\n" +
+                "  ParaNode [0-84]\n" +
+                "    SuperNode [0-82]\n" +
+                "      TextNode [0-38] 'Two empty space at the end of the line'\n" +
+                "      SimpleNode [38-41] Linebreak\n" +
+                "      TextNode [41-82] 'should act as a new line in the paragraph'\n" +
+                "  ParaNode [84-164]\n" +
+                "    SuperNode [84-161]\n" +
+                "      TextNode [84-117] 'This should be an other paragraph'\n" +
+                "      SimpleNode [117-120] Ellipsis\n" +
+                "      SimpleNode [120-121] Linebreak\n" +
+                "      TextNode [121-161] 'but with no space at the end of the line'\n" +
+                "  ParaNode [164-185]\n" +
+                "    SuperNode [164-183]\n" +
+                "      TextNode [164-183] 'And yet another one'"));
     }
 
     public static class Dumper {

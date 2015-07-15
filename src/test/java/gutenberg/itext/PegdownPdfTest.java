@@ -161,9 +161,9 @@ public class PegdownPdfTest {
                 "              spaces (at least one, but we ' ll use three here to also align the raw Markdown). \n" +
                 "                \n" +
                 "                \n" +
-                "              To have a line break without a paragraph, you will need to use two trailing spaces.   Note that this line is \n" +
-                "              separate, but within the same paragraph.   (This is contrary to the typical GFM line break behaviour, where \n" +
-                "              trailing spaces are not required.) \n" +
+                "              To have a line break without a paragraph, you will need to use two trailing spaces.       \n" +
+                "              Note that this line is separate, but within the same paragraph.       \n" +
+                "              (This is contrary to the typical GFM line break behaviour, where trailing spaces are not required.) \n" +
                 "                \n" +
                 "          5. And yet another \n" +
                 "                \n" +
@@ -319,7 +319,35 @@ public class PegdownPdfTest {
     }
 
     @Test
-    public void genericBox_01 () throws Exception {
+    public void paragraph_03__empty_space_at_the_end_of_line_should_force_new_line_in_paragraph() throws Exception {
+        String mkd = "" +
+                "Two empty space at the end of the line  \n" +
+                "should act as a new line in the paragraph\n" +
+                "\n" +
+                "This should be an other paragraph...\n" +
+                "but with no space at the end of the line\n" +
+                "\n" +
+                "\n" +
+                "And yet another one";
+        processString("paragraph_02", mkd, Functions.<InvocationContext>identity());
+        List<TextStripper.Page> pages = new TextStripper()
+                .extractText(new FileInputStream(fileOut));
+
+        assertThat(pages).hasSize(1);
+        assertThat(pages.get(0).renderedText()).isEqualTo("" +
+                "          Two empty space at the end of the line   \n" +
+                "          should act as a new line in the paragraph \n" +
+                "            \n" +
+                "            \n" +
+                "          This should be an other paragraph …   but with no space at the end of the line \n" +
+                "            \n" +
+                "            \n" +
+                "          And yet another one \n" +
+                "            \n");
+    }
+
+    @Test
+    public void genericBox_01() throws Exception {
         process("genericBox_01", "/gutenberg/pegdown/genericBox-01-with-attributesText.md");
 
     }
@@ -369,7 +397,7 @@ public class PegdownPdfTest {
 
     protected String loadResource(String resourceName) {
         InputStream stream = getClass().getResourceAsStream(resourceName);
-        if(stream==null)
+        if (stream == null)
             throw new IllegalArgumentException("Resource not found: " + resourceName);
         try {
             return IOUtils.toString(stream, "utf8");
