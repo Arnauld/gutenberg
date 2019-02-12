@@ -62,7 +62,7 @@ public class JLaTeXmathFontMapper implements FontMapper {
             String name = basePath + fontName + ".ttf";
             InputStream stream = getClass().getResourceAsStream(name);
             if (stream != null)
-                 return stream;
+                return stream;
         }
         return null;
     }
